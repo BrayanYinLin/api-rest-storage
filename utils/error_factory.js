@@ -18,3 +18,11 @@ export const UserNotFound = createError({
 export const PasswordWrong = createError({
   name: 'PasswordWrong'
 })
+
+export const UnauthorizedAction = createError({
+  name: 'UnauthorizedAction'
+})
+
+export const MissingToken = createError({
+  name: 'MissingToken'
+})

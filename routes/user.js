@@ -1,6 +1,8 @@
 import { Router } from 'express'
 import { checkUser, checkFullUser } from '../schemas/users.js'
-import { Storage } from '../models/database.js'
+// import { Storage } from '../models/database.js'
+import { Storage } from '../models/local.js'
+import jsonwebtoken from 'jsonwebtoken'
 
 const userRoute = Router()
 
@@ -38,7 +40,18 @@ userRoute.post('/login', async (req, res) => {
       password: data.password
     })
 
-    res.json(userLogged)
+    const token = jsonwebtoken.sign(userLogged, process.env.SECRET, {
+      expiresIn: '8h'
+    })
+
+    res
+      .cookie('access_token', token, {
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.ENV !== 'DEVELOPMENT',
+        maxAge: 1000 * 60 * 60
+      })
+      .json(userLogged)
   } catch (err) {
     res.status(403).json({ msg: err.message })
   }

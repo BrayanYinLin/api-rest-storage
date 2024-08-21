@@ -3,7 +3,11 @@ import zod from 'zod'
 const userNameSchema = zod.string()
 
 const userSchema = zod.object({
-  email: zod.string().email(),
+  email: zod
+    .string({
+      required_error: 'Email is required'
+    })
+    .email(),
   password: zod
     .string({
       invalid_type_error: 'Password must be a string',
