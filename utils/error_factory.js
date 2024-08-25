@@ -7,6 +7,10 @@ function createError({ name }) {
   }
 }
 
+export const VolumeNotFound = createError({
+  name: 'VolumeNotFound'
+})
+
 export const RepeatedUserError = createError({
   name: 'RepeatedUserError'
 })
@@ -25,4 +29,8 @@ export const UnauthorizedAction = createError({
 
 export const MissingToken = createError({
   name: 'MissingToken'
+})
+
+export const RepeatedProduct = createError({
+  name: 'RepeatedProduct'
 })
