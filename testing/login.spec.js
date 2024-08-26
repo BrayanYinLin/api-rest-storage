@@ -14,5 +14,12 @@ describe('Login process', () => {
     })
 
     expect(response.ok).toBeTruthy()
+
+    const logout = await fetch('http://localhost:3000/api/user/logout', {
+      method: 'POST'
+    })
+    const parsedResponse = await logout.json()
+
+    expect(parsedResponse.msg).toBe('Logout successfull')
   })
 })

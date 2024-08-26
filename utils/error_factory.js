@@ -34,3 +34,7 @@ export const MissingToken = createError({
 export const RepeatedProduct = createError({
   name: 'RepeatedProduct'
 })
+
+export const UnexpectedCreateRecordError = createError({
+  name: 'UnexpectedCreateRecordError'
+})

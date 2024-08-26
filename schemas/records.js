@@ -1,7 +1,7 @@
 import zod from 'zod'
 
 const recordSchema = zod.object({
-  producId: zod
+  productId: zod
     .number({
       invalid_type_error: 'Product id must be a number',
       required_error: 'Product id is required'
@@ -30,7 +30,7 @@ const recordSchema = zod.object({
     .positive(),
   recordDate: zod
     .string({
-      invalid_type_error: 'Date must be a date',
+      invalid_type_error: 'Date must be a string',
       required_error: 'Date is required'
     })
     .date()

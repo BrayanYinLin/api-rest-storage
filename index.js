@@ -19,7 +19,11 @@ app.use((req, _, next) => {
   req.session = { user: null }
   try {
     const token = req.cookies.access_token
-    if (!token) throw new MissingToken('Token is missing')
+    if (!token && req.path !== '/api/user/login') {
+      throw new MissingToken('Token is missing')
+    }
+    if (!token && req.path === '/api/user/login') return next()
+
     const user = jsonwebtoken.verify(token, process.env.SECRET)
 
     req.session.user = user
