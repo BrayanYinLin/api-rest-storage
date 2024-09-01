@@ -1,6 +1,10 @@
 import { UnauthorizedAction } from '../utils/error_factory.js'
 import { Storage } from '../models/local.js'
-import { checkFullProduct } from '../schemas/products.js'
+import {
+  checkProduct,
+  checkProductId,
+  checkUpdateProduct
+} from '../schemas/products.js'
 
 export default class ProductController {
   static getProducts = async (req, res) => {
@@ -26,12 +30,16 @@ export default class ProductController {
         throw new UnauthorizedAction('Forbidden Action: Create new product')
       const { name, stock, volume } = req.body
       const id = await Storage.getVolume({ volumeId: id })
-      const { data, error } = checkFullProduct({ name, stock, volume })
+      const { data, error } = checkProduct({
+        product_name: name,
+        product_stock: stock,
+        volume_id: volume
+      })
       if (error) return res.status(422).json(error)
 
       const newProduct = await Storage.createProduct({
-        name: data.name,
-        stock: data.stock,
+        name: data.product_name,
+        stock: data.product_stock,
         volume: id
       })
 
@@ -44,5 +52,26 @@ export default class ProductController {
       if (e.message === 'Forbidden Action')
         res.status(403).json({ msg: e.message })
     }
+  }
+
+  static updateProduct = async (req, res) => {
+    if (!req.session.user) {
+      throw new UnauthorizedAction('Forbidden Action: Update product')
+    }
+    const { data: productId, error: idError } = checkProductId(
+      Number(req.params.id)
+    )
+    const { data: productFields, error: fieldsError } = checkUpdateProduct(
+      req.body
+    )
+
+    if (fieldsError) return res.status(422).json({ msg: fieldsError })
+    if (idError) return res.status(404).json({ msg: productId })
+
+    const updatedProduct = await Storage.updateProduct({
+      product_id: productId,
+      ...productFields
+    })
+    return res.json(updatedProduct)
   }
 }

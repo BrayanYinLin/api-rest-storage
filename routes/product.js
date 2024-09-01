@@ -7,4 +7,6 @@ productRoute.get('/', ProductController.getProducts)
 
 productRoute.post('/', ProductController.createProduct)
 
+productRoute.put('/:id', ProductController.updateProduct)
+
 export default productRoute

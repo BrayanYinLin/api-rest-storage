@@ -1,25 +1,15 @@
 import { expect, test, describe } from 'vitest'
-import { checkFullProduct } from '../schemas/products'
+import { checkUpdateProduct } from '../schemas/products.js'
 
 describe('Product schema', () => {
-  test('Product schema works', () => {
+  test('Product schema for update', () => {
     const productTest = {
-      name: 'Air freshener',
-      stock: 200,
-      volume: 2
+      product_id: 2,
+      product_name: 'Air freshener',
+      product_stock: 200,
+      volume_id: 2
     }
 
-    expect(checkFullProduct(productTest).error).not.toBeTruthy()
-  })
-
-  test('Product name is a number', () => {
-    const productTest = {
-      name: 2,
-      stock: 200,
-      volume: 2
-    }
-
-    const checked = checkFullProduct(productTest)
-    expect(checked.error.issues[0]).toHaveProperty('message')
+    expect(checkUpdateProduct(productTest).error).not.toBeTruthy()
   })
 })

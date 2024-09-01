@@ -10,11 +10,11 @@ const volumeId = zod
   })
 
 const productSchema = zod.object({
-  name: zod.string({
+  product_name: zod.string({
     invalid_type_error: 'Product name must be string',
     required_error: 'Product name is required'
   }),
-  stock: zod
+  product_stock: zod
     .number({
       invalid_type_error: 'Stock must be a number',
       required_error: 'Stock is required'
@@ -22,9 +22,19 @@ const productSchema = zod.object({
     .int({
       message: 'Stock must be a integer'
     }),
-  volume: volumeId
+  volume_id: volumeId
 })
 
-export const checkFullProduct = (product) => {
+const product_id = zod.number().int().positive()
+
+export const checkProductId = (id) => {
+  return product_id.safeParse(id)
+}
+
+export const checkProduct = (product) => {
   return productSchema.safeParse(product)
+}
+
+export const checkUpdateProduct = (product) => {
+  return productSchema.partial().safeParse(product)
 }
