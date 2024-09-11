@@ -1,34 +1,45 @@
-import { describe, test, expect } from 'vitest'
+import { describe, test, expect, beforeAll } from 'vitest'
 import { parseCookie } from '../utils/cookie_parser.js'
 
-describe('Product Operations', async () => {
-  const response = await fetch('http://localhost:3000/api/user/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8'
-    },
-    body: JSON.stringify({
-      email: 'byinlinm@gmail.com',
-      password: '12345678'
-    })
+describe('Product Tests', async () => {
+  const tokens = {
+    access_token: null
+  }
+
+  beforeAll(async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8'
+        },
+        body: JSON.stringify({
+          email: 'byinlinm@gmail.com',
+          password: '12345678'
+        })
+      })
+
+      tokens.access_token = parseCookie(response)
+    } catch (e) {
+      console.error(e.message)
+    }
   })
 
-  test('Update product', async () => {
-    expect(response.ok).toBeTruthy()
-
-    const updateRequest = await fetch('http://localhost:3000/api/product/1', {
-      method: 'PUT',
+  test('should create a new product', async () => {
+    const newProductRes = await fetch('http://localhost:3000/api/product', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
-        Cookie: parseCookie(response)
+        Cookie: tokens.access_token
       },
       body: JSON.stringify({
-        product_name: 'Ayudin',
-        product_stock: 1000
+        name: 'Bolsas 20*30',
+        stock: 500,
+        volume: 2
       })
     })
 
-    const parsedResponse = await updateRequest.json()
-    expect(parsedResponse).not.toHaveProperty('msg')
+    const parsedProduct = await newProductRes.json()
+    expect(parsedProduct).not.toHaveProperty('msg')
   })
 })

@@ -1,15 +1,25 @@
 import { expect, test, describe } from 'vitest'
-import { checkUpdateProduct } from '../schemas/products.js'
+import { checkUpdateRecord } from '../schemas/records'
 
-describe('Product schema', () => {
-  test('Product schema for update', () => {
-    const productTest = {
-      product_id: 2,
-      product_name: 'Air freshener',
-      product_stock: 200,
-      volume_id: 2
+describe('Schemas Tests', () => {
+  //  Record schemas
+  test('should not return an error for record update', () => {
+    const record = {
+      user_id: 2,
+      record_id: 1,
+      record_quantity: 100
     }
 
-    expect(checkUpdateProduct(productTest).error).not.toBeTruthy()
+    const checkRecord = checkUpdateRecord({ record })
+    expect(checkRecord.error).not.toBeTruthy()
+  })
+
+  test('should return an error for record update', () => {
+    const record = {
+      user_id: 2
+    }
+
+    const checkRecord = checkUpdateRecord({ record })
+    expect(checkRecord.error).toBeTruthy()
   })
 })

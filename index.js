@@ -10,29 +10,37 @@ import recordRoute from './routes/record.js'
 //  Dotenv
 import 'dotenv/config'
 
+const { TokenExpiredError } = jsonwebtoken
 const port = process.env.PORT ?? 3000
 const app = express()
 
 app.use(express.json())
 app.use(cookieParser())
-app.use((req, _, next) => {
+app.use((req, res, next) => {
   req.session = { user: null }
   try {
     const token = req.cookies.access_token
     if (!token && req.path !== '/api/user/login') {
       throw new MissingToken('Token is missing')
     }
-    if (!token && req.path === '/api/user/login') return next()
+    if (
+      !token &&
+      (req.path === '/api/user/login' || req.path === '/api/user/register')
+    ) {
+      return next()
+    }
 
     const user = jsonwebtoken.verify(token, process.env.SECRET)
 
     req.session.user = user
   } catch (e) {
-    console.error(e.message)
-    req.session.user = null
+    if (e instanceof TokenExpiredError) {
+      res.status(401).json({ msg: 'Token expired' })
+    } else if (e instanceof MissingToken) {
+      req.session.user = null
+      next()
+    }
   }
-
-  next()
 })
 app.use('/api/user', userRoute)
 app.use('/api/product', productRoute)

@@ -16,10 +16,11 @@ export default class ProductController {
 
       res.json(products)
     } catch (e) {
-      if (e.message === 'Forbidden Action: Get products') {
-        return res.status(403).json({ msg: e.message })
+      if (e instanceof UnauthorizedAction) {
+        return res.status(401).json({ msg: e.message })
       } else {
         console.error(e.message)
+        return res.status(400).json({ msg: 'Unexpected Error' })
       }
     }
   }
@@ -49,29 +50,42 @@ export default class ProductController {
         volume: volume
       })
     } catch (e) {
-      if (e.message === 'Forbidden Action')
-        res.status(403).json({ msg: e.message })
+      if (e instanceof UnauthorizedAction) {
+        return res.status(401).json({ msg: e.message })
+      } else {
+        console.error(e.message)
+        return res.status(400).json({ msg: 'Unexpected Error' })
+      }
     }
   }
 
   static updateProduct = async (req, res) => {
-    if (!req.session.user) {
-      throw new UnauthorizedAction('Forbidden Action: Update product')
+    try {
+      if (!req.session.user) {
+        throw new UnauthorizedAction('Forbidden Action: Update product')
+      }
+      const { data: productId, error: idError } = checkProductId(
+        Number(req.params.id)
+      )
+      const { data: productFields, error: fieldsError } = checkUpdateProduct(
+        req.body
+      )
+
+      if (fieldsError) return res.status(422).json({ msg: fieldsError })
+      if (idError) return res.status(404).json({ msg: productId })
+
+      const updatedProduct = await Storage.updateProduct({
+        product_id: productId,
+        ...productFields
+      })
+      return res.json(updatedProduct)
+    } catch (e) {
+      if (e instanceof UnauthorizedAction) {
+        return res.status(401).json({ msg: e.message })
+      } else {
+        console.error(e.message)
+        return res.status(400).json({ msg: 'Unexpected Error' })
+      }
     }
-    const { data: productId, error: idError } = checkProductId(
-      Number(req.params.id)
-    )
-    const { data: productFields, error: fieldsError } = checkUpdateProduct(
-      req.body
-    )
-
-    if (fieldsError) return res.status(422).json({ msg: fieldsError })
-    if (idError) return res.status(404).json({ msg: productId })
-
-    const updatedProduct = await Storage.updateProduct({
-      product_id: productId,
-      ...productFields
-    })
-    return res.json(updatedProduct)
   }
 }

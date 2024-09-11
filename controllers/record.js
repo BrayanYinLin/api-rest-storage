@@ -1,9 +1,5 @@
 import { UnauthorizedAction } from '../utils/error_factory.js'
-import {
-  checkRecord,
-  checkRecordId,
-  checkUpdateRecord
-} from '../schemas/records.js'
+import { checkRecord, checkUpdateRecord } from '../schemas/records.js'
 import { Storage } from '../models/local.js'
 
 export default class RecordController {
@@ -63,11 +59,13 @@ export default class RecordController {
       } = req.body
 
       const { data, error } = checkRecord({
-        productId: Number(product_id),
-        user_id: Number(user_id),
-        record_type_id,
-        record_quantity,
-        record_date
+        record: {
+          productId: Number(product_id),
+          user_id: Number(user_id),
+          record_type_id,
+          record_quantity,
+          record_date
+        }
       })
 
       if (error) return res.status(422).json({ msg: error })
@@ -94,23 +92,21 @@ export default class RecordController {
       if (!req.session.user) {
         throw new UnauthorizedAction('Unauthorized Action: Update Record')
       }
-      const checkId = checkRecordId(Number(req.params.id))
-      const checkSchema = checkUpdateRecord(req.body)
-
-      if (checkSchema.error)
-        return res.status(422).json({ msg: checkSchema.error })
-
-      const updatedRecord = await Storage.updateRecord({
-        record_id: checkId.data,
-        ...checkSchema.data
+      const checkRecord = checkUpdateRecord({
+        record: {
+          record_id: req.params.id,
+          ...req.body
+        }
       })
+      const updatedRecord = await Storage.updateRecord(checkRecord.data)
 
-      res.json(updatedRecord)
+      return updatedRecord
     } catch (e) {
       if (e instanceof UnauthorizedAction) {
         return res.status(401).json({ msg: e.message })
+      } else {
+        return res.status(400).json({ msg: e.message })
       }
-      console.error(e.message)
     }
   }
 }

@@ -2,8 +2,10 @@ import { expect, test, describe } from 'vitest'
 import { parseCookie } from '../utils/cookie_parser.js'
 
 describe('Login process', () => {
-  test('login', async () => {
-    const response = await fetch('http://localhost:3000/api/user/login', {
+  let logResponse
+
+  test('should return user info', async () => {
+    logResponse = await fetch('http://localhost:3000/api/user/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json; charset=utf-8'
@@ -14,12 +16,14 @@ describe('Login process', () => {
       })
     })
 
-    expect(response.ok).toBeTruthy()
+    expect(logResponse.ok).toBeTruthy()
+  })
 
+  test('should return a successfull logout message', async () => {
     const logout = await fetch('http://localhost:3000/api/user/logout', {
       method: 'POST',
       headers: {
-        Cookie: parseCookie(response)
+        Cookie: parseCookie(logResponse)
       }
     })
     const parsedResponse = await logout.json()

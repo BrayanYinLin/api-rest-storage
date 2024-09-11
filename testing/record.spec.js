@@ -13,7 +13,7 @@ describe('Record Operations', async () => {
     })
   })
 
-  test('Add new record', async () => {
+  test('should add new record', async () => {
     expect(login.ok).toBeTruthy()
     const newUser = await login.json()
     const cookie = parseCookie(login)
@@ -39,7 +39,7 @@ describe('Record Operations', async () => {
     expect(parsedNewRecord).not.toHaveProperty('msg')
   })
 
-  test('Get records', async () => {
+  test('should return all records', async () => {
     expect(login.ok).toBeTruthy()
     const cookie = parseCookie(login)
     const responseRecords = await fetch(

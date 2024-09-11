@@ -1,14 +1,13 @@
 import zod from 'zod'
 
-const recordId = zod
-  .number({
-    invalid_type_error: 'Product id must be a number',
-    required_error: 'Product id is required'
-  })
-  .int()
-  .positive()
-
 const recordSchema = zod.object({
+  record_id: zod
+    .number({
+      invalid_type_error: 'Product id must be a number',
+      required_error: 'Product id is required'
+    })
+    .int()
+    .positive(),
   product_id: zod
     .number({
       invalid_type_error: 'Product id must be a number',
@@ -44,18 +43,21 @@ const recordSchema = zod.object({
     .date()
 })
 
-export function checkRecord(record) {
-  return recordSchema.safeParse(record)
-}
-
-export function checkUpdateRecord(record) {
+export function checkRecord({ record }) {
   return recordSchema
-    .required({
-      user_id: true
+    .partial({
+      record_id: true
     })
     .safeParse(record)
 }
 
-export function checkRecordId(id) {
-  return recordId.safeParse(id)
+export function checkUpdateRecord({ record }) {
+  return recordSchema
+    .partial({
+      record_date: true,
+      record_quantity: true,
+      record_type_id: true,
+      product_id: true
+    })
+    .safeParse(record)
 }

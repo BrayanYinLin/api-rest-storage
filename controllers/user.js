@@ -47,7 +47,7 @@ export default class UserController {
           httpOnly: process.env.ENV !== 'DEVELOPMENT',
           sameSite: 'strict',
           secure: process.env.ENV !== 'DEVELOPMENT',
-          maxAge: 1000 * 60 * 60
+          maxAge: 1000 * 60 * 60 * 8
         })
         .json(userLogged)
     } catch (err) {
