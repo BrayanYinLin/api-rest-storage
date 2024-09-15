@@ -38,3 +38,7 @@ export const RepeatedProduct = createError({
 export const UnexpectedCreateRecordError = createError({
   name: 'UnexpectedCreateRecordError'
 })
+
+export const RecordNotFound = createError({
+  name: 'ProductNotFound'
+})

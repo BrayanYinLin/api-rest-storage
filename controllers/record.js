@@ -1,5 +1,9 @@
 import { UnauthorizedAction } from '../utils/error_factory.js'
-import { checkRecord, checkUpdateRecord } from '../schemas/records.js'
+import {
+  checkDeleteId,
+  checkRecord,
+  checkUpdateRecord
+} from '../schemas/records.js'
 import { Storage } from '../models/local.js'
 
 export default class RecordController {
@@ -59,13 +63,11 @@ export default class RecordController {
       } = req.body
 
       const { data, error } = checkRecord({
-        record: {
-          productId: Number(product_id),
-          user_id: Number(user_id),
-          record_type_id,
-          record_quantity,
-          record_date
-        }
+        product_id: Number(product_id),
+        user_id: Number(user_id),
+        record_type_id: Number(record_type_id),
+        record_quantity: Number(record_quantity),
+        record_date
       })
 
       if (error) return res.status(422).json({ msg: error })
@@ -101,6 +103,26 @@ export default class RecordController {
       const updatedRecord = await Storage.updateRecord(checkRecord.data)
 
       return updatedRecord
+    } catch (e) {
+      if (e instanceof UnauthorizedAction) {
+        return res.status(401).json({ msg: e.message })
+      } else {
+        return res.status(400).json({ msg: e.message })
+      }
+    }
+  }
+
+  static deleteRecord = async (req, res) => {
+    try {
+      if (!req.session.user) {
+        throw new UnauthorizedAction('Unauthorized Action: Delete Record')
+      }
+      const checkRecord = checkDeleteId({ id: Number(req.params.id) })
+      const deletedRecord = await Storage.deleteRecord({
+        id: checkRecord.data
+      })
+
+      return res.json(deletedRecord)
     } catch (e) {
       if (e instanceof UnauthorizedAction) {
         return res.status(401).json({ msg: e.message })

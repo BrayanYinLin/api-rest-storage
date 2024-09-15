@@ -19,8 +19,18 @@ export default class UserController {
       }
 
       const userCreated = await Storage.register(newUser)
+      const token = jsonwebtoken.sign(userCreated, process.env.SECRET, {
+        expiresIn: '8h'
+      })
 
-      res.json(userCreated)
+      res
+        .cookie('access_token', token, {
+          httpOnly: process.env.ENV !== 'DEVELOPMENT',
+          sameSite: 'strict',
+          secure: process.env.ENV !== 'DEVELOPMENT',
+          maxAge: 1000 * 60 * 60 * 8
+        })
+        .json(userCreated)
     } catch (err) {
       res.status(422).json({ msg: err.message })
     }

@@ -7,6 +7,7 @@ recordRoute.get('/incomes', RecordController.getIncomeRecords)
 recordRoute.get('/expenses', RecordController.getExpensesRecords)
 recordRoute.get('/all', RecordController.getAllRecords)
 recordRoute.put('/:id', RecordController.updateRecord)
+recordRoute.delete('/:id', RecordController.deleteRecord)
 
 recordRoute.post('/', RecordController.createRecord)
 

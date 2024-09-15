@@ -1,7 +1,7 @@
 import { expect, test, describe } from 'vitest'
 import { parseCookie } from '../utils/cookie_parser.js'
 
-describe('Login process', () => {
+describe('Sign in process', () => {
   let logResponse
 
   test('should return user info', async () => {

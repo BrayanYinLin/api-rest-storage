@@ -38,9 +38,9 @@ app.use((req, res, next) => {
       res.status(401).json({ msg: 'Token expired' })
     } else if (e instanceof MissingToken) {
       req.session.user = null
-      next()
     }
   }
+  next()
 })
 app.use('/api/user', userRoute)
 app.use('/api/product', productRoute)

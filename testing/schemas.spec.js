@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'vitest'
-import { checkUpdateRecord } from '../schemas/records'
+import { checkUpdateRecord, checkDeleteId } from '../schemas/records'
 
 describe('Schemas Tests', () => {
   //  Record schemas
@@ -21,5 +21,12 @@ describe('Schemas Tests', () => {
 
     const checkRecord = checkUpdateRecord({ record })
     expect(checkRecord.error).toBeTruthy()
+  })
+
+  test('should return a id', () => {
+    const checkRecord = checkDeleteId({ id: 10 })
+    console.log(checkRecord.data)
+
+    expect(checkRecord.data).toBeTypeOf('number')
   })
 })
