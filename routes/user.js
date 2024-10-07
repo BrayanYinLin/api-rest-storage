@@ -6,6 +6,8 @@ const userRoute = Router()
 
 userRoute.post('/register', UserController.register)
 
+userRoute.post('/refresh', UserController.refresh)
+
 userRoute.post('/login', UserController.login)
 
 userRoute.post('/logout', UserController.logout)

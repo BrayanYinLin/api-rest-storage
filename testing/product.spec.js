@@ -19,7 +19,10 @@ describe('Product Tests', async () => {
         })
       })
 
-      tokens.access_token = parseCookie(response)
+      tokens.access_token = parseCookie({
+        cookiesSet: response.headers.getSetCookie(),
+        tokenName: 'access_token'
+      })
     } catch (e) {
       console.error(e.message)
     }

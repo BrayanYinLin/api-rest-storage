@@ -20,27 +20,46 @@ app.use((req, res, next) => {
   req.session = { user: null }
   try {
     const token = req.cookies.access_token
-    if (!token && req.path !== '/api/user/login') {
-      throw new MissingToken('Token is missing')
+    const refresh_token = req.cookies.refresh_token
+    if (req.path === '/api/user/login' || req.path === '/api/user/register') {
+      return next()
     }
-    if (
-      !token &&
-      (req.path === '/api/user/login' || req.path === '/api/user/register')
-    ) {
+
+    if (!token) throw new MissingToken('Missing Token')
+
+    if (req.path === '/api/user/refresh') {
+      const refresh = jsonwebtoken.verify(
+        refresh_token,
+        process.env.REFRESH_SECRET
+      )
+      req.session = {
+        user: token,
+        refresh: refresh
+      }
       return next()
     }
 
     const user = jsonwebtoken.verify(token, process.env.SECRET)
+    const refresh = jsonwebtoken.verify(
+      refresh_token,
+      process.env.REFRESH_SECRET
+    )
 
-    req.session.user = user
+    console.log(refresh)
+    req.session = {
+      user: user,
+      refresh: refresh
+    }
+    next()
   } catch (e) {
+    req.session.user = null
+
     if (e instanceof TokenExpiredError) {
       res.status(401).json({ msg: 'Token expired' })
     } else if (e instanceof MissingToken) {
-      req.session.user = null
+      res.status(401).json({ msg: 'Missing Token' })
     }
   }
-  next()
 })
 app.use('/api/user', userRoute)
 app.use('/api/product', productRoute)

@@ -25,7 +25,10 @@ describe('Record Operations', async () => {
       console.log(user)
       userId = user.id
 
-      tokens.access_token = parseCookie(response)
+      tokens.access_token = parseCookie({
+        cookiesSet: response.headers.getSetCookie(),
+        tokenName: 'access_token'
+      })
     } catch (e) {
       console.error(e.message)
     }

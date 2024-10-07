@@ -31,6 +31,10 @@ export const MissingToken = createError({
   name: 'MissingToken'
 })
 
+export const MissingRefreshToken = createError({
+  name: 'MissingRefreshToken'
+})
+
 export const RepeatedProduct = createError({
   name: 'RepeatedProduct'
 })
