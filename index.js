@@ -7,6 +7,7 @@ import { MissingToken } from './utils/error_factory.js'
 import userRoute from './routes/user.js'
 import productRoute from './routes/product.js'
 import recordRoute from './routes/record.js'
+import reportRoute from './routes/report.js'
 //  Dotenv
 import 'dotenv/config'
 
@@ -45,7 +46,6 @@ app.use((req, res, next) => {
       process.env.REFRESH_SECRET
     )
 
-    console.log(refresh)
     req.session = {
       user: user,
       refresh: refresh
@@ -64,6 +64,7 @@ app.use((req, res, next) => {
 app.use('/api/user', userRoute)
 app.use('/api/product', productRoute)
 app.use('/api/record', recordRoute)
+app.use('/api/report', reportRoute)
 app.disable('x-powered-by')
 
 app.listen(port, () => {

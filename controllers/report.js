@@ -1,20 +1,65 @@
 import { Storage } from '../models/local.js'
-import createReportBuffer from '../utils/create_report.js'
+import createReportBase64 from '../utils/create_report.js'
+import { UnauthorizedAction } from '../utils/error_factory.js'
+import getMonth from '../utils/get_month.js'
 
 export default class Report {
-  static getReport = async (req, res) => {
+  static getExpensesReport = async (req, res) => {
     try {
+      if (!req.session.user) {
+        throw new UnauthorizedAction('Forbbiden for creating reports')
+      }
       const { month, year } = req.query
-      const resume = await Storage.getResumeByMonth({
+      const resume = await Storage.getExpensesResumeByMonth({
         month,
         year
       })
 
-      const reportExcelBuffer = createReportBuffer(resume)
+      const requestMonth = getMonth({ index: Number(month), lang: 'es-ES' })
+      const excelBuffer = createReportBase64({
+        data: resume,
+        month: requestMonth
+      })
 
-      res.json(resume)
+      res.setHeader('Content-Disposition', 'attachment; filename=datos.xlsx')
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      )
+
+      res.send(excelBuffer)
+    } catch (e) {
+      res.status(400).json({ msg: e.message })
+    }
+  }
+
+  static getIncomesReport = async (req, res) => {
+    try {
+      if (!req.session.user) {
+        throw new UnauthorizedAction('Forbbiden for creating reports')
+      }
+      const { month, year } = req.query
+      const resume = await Storage.getIncomesResumeByMonth({
+        month,
+        year
+      })
+
+      const requestMonth = getMonth({ index: Number(month), lang: 'es-ES' })
+      const excelBuffer = createReportBase64({
+        data: resume,
+        month: requestMonth
+      })
+
+      res.setHeader('Content-Disposition', `Reporte_${requestMonth}`)
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      )
+
+      res.send(excelBuffer)
     } catch (e) {
       console.error(e)
+      res.status(400).json({ msg: e.message })
     }
   }
 }

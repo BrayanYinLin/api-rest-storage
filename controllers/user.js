@@ -3,7 +3,8 @@ import jsonwebtoken from 'jsonwebtoken'
 import { checkSignUpUser, checkSignInUser } from '../schemas/users.js'
 import { MissingRefreshToken } from '../utils/error_factory.js'
 import 'dotenv/config'
-import { TokenExpiredError } from 'jsonwebtoken'
+
+const { TokenExpiredError } = jsonwebtoken
 
 export default class UserController {
   static register = async (req, res) => {
@@ -64,8 +65,8 @@ export default class UserController {
       })
 
       const token = jsonwebtoken.sign(userLogged, process.env.SECRET, {
-        // expiresIn: '8h'
-        expiresIn: 10
+        expiresIn: '8h'
+        // expiresIn: 10
       })
 
       const refreshToken = jsonwebtoken.sign(
@@ -81,8 +82,8 @@ export default class UserController {
           httpOnly: process.env.ENV !== 'DEVELOPMENT',
           sameSite: 'strict',
           secure: process.env.ENV !== 'DEVELOPMENT',
-          // maxAge: 1000 * 60 * 60 * 8
-          maxAge: 1000 * 10
+          maxAge: 1000 * 60 * 60 * 8
+          // maxAge: 1000 * 10
         })
         .cookie('refresh_token', refreshToken, {
           httpOnly: process.env.ENV !== 'DEVELOPMENT',
@@ -111,8 +112,8 @@ export default class UserController {
         const refreshUser = await Storage.refresh(req.session.refresh)
 
         const token = jsonwebtoken.sign(refreshUser, process.env.SECRET, {
-          // expiresIn: '8h'
-          expiresIn: 20
+          expiresIn: '8h'
+          // expiresIn: 20
         })
 
         res
@@ -120,8 +121,8 @@ export default class UserController {
             httpOnly: process.env.ENV !== 'DEVELOPMENT',
             sameSite: 'strict',
             secure: process.env.ENV !== 'DEVELOPMENT',
-            // maxAge: 1000 * 60 * 60 * 8
-            maxAge: 1000 * 20
+            maxAge: 1000 * 60 * 60 * 8
+            // maxAge: 1000 * 20
           })
           .json(refreshUser)
       }
@@ -129,6 +130,9 @@ export default class UserController {
   }
 
   static logout = async (req, res) => {
-    res.clearCookie('access_token').json({ msg: 'Logout successfull' })
+    res
+      .clearCookie('access_token')
+      .clearCookie('refresh_token')
+      .json({ msg: 'Logout successfull' })
   }
 }

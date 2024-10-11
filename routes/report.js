@@ -3,4 +3,7 @@ import Report from '../controllers/report.js'
 
 const reportRoute = Router()
 
-reportRoute.get('/', Report.getReport)
+reportRoute.get('/expenses', Report.getExpensesReport)
+reportRoute.get('/incomes', Report.getIncomesReport)
+
+export default reportRoute
