@@ -4,6 +4,8 @@ import UserController from '../controllers/user.js'
 
 const userRoute = Router()
 
+userRoute.get('/check', UserController.checkTokens)
+
 userRoute.post('/register', UserController.register)
 
 userRoute.post('/refresh', UserController.refresh)

@@ -20,11 +20,15 @@ export class Storage {
       })
 
       const { rows } = await turso.execute({
-        sql: 'SELECT user_email, user_name FROM user WHERE user_email = ?;',
+        sql: 'SELECT user_id, user_email, user_name FROM user WHERE user_email = ?;',
         args: [email]
       })
 
-      return rows[0]
+      return {
+        id: rows[0].user_id,
+        email: rows[0].user_email,
+        name: rows[0].user_name
+      }
     } catch (err) {
       console.error(err)
       throw new Error('There was a error in database')

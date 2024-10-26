@@ -35,15 +35,15 @@ export default class UserController {
 
       res
         .cookie('access_token', token, {
-          httpOnly: process.env.ENV !== 'DEVELOPMENT',
+          httpOnly: process.env.ENV === 'DEVELOPMENT',
           sameSite: 'strict',
-          secure: process.env.ENV !== 'DEVELOPMENT',
+          secure: false, //process.env.ENV === 'DEVELOPMENT'
           maxAge: 1000 * 60 * 60 * 8
         })
         .cookie('refresh_token', refreshToken, {
-          httpOnly: process.env.ENV !== 'DEVELOPMENT',
+          httpOnly: process.env.ENV === 'DEVELOPMENT',
           sameSite: 'strict',
-          secure: process.env.ENV !== 'DEVELOPMENT',
+          secure: false, //process.env.ENV === 'DEVELOPMENT'
           maxAge: 1000 * 60 * 60 * 24 * 20
         })
         .json(userCreated)
@@ -79,16 +79,16 @@ export default class UserController {
 
       res
         .cookie('access_token', token, {
-          httpOnly: process.env.ENV !== 'DEVELOPMENT',
-          sameSite: 'strict',
-          secure: process.env.ENV !== 'DEVELOPMENT',
+          httpOnly: process.env.ENV === 'DEVELOPMENT',
+          sameSite: process.env.ENV === 'DEVELOPMENT' ? 'lax' : 'strict',
+          secure: false, //process.env.ENV === 'DEVELOPMENT'
           maxAge: 1000 * 60 * 60 * 8
           // maxAge: 1000 * 10
         })
         .cookie('refresh_token', refreshToken, {
-          httpOnly: process.env.ENV !== 'DEVELOPMENT',
-          sameSite: 'strict',
-          secure: process.env.ENV !== 'DEVELOPMENT',
+          httpOnly: process.env.ENV === 'DEVELOPMENT',
+          sameSite: process.env.ENV === 'DEVELOPMENT' ? 'lax' : 'strict',
+          secure: false, //process.env.ENV === 'DEVELOPMENT'
           maxAge: 1000 * 60 * 60 * 24 * 20
         })
         .json(userLogged)
@@ -118,9 +118,9 @@ export default class UserController {
 
         res
           .cookie('access_token', token, {
-            httpOnly: process.env.ENV !== 'DEVELOPMENT',
+            httpOnly: process.env.ENV === 'DEVELOPMENT',
             sameSite: 'strict',
-            secure: process.env.ENV !== 'DEVELOPMENT',
+            secure: false, //process.env.ENV === 'DEVELOPMENT'
             maxAge: 1000 * 60 * 60 * 8
             // maxAge: 1000 * 20
           })
@@ -134,5 +134,24 @@ export default class UserController {
       .clearCookie('access_token')
       .clearCookie('refresh_token')
       .json({ msg: 'Logout successfull' })
+  }
+
+  static checkTokens = async (req, res) => {
+    try {
+      const token = jsonwebtoken.verify(
+        req.cookies.access_token,
+        process.env.SECRET
+      )
+      const refreshToken = jsonwebtoken.verify(
+        req.cookies.refresh_token,
+        process.env.REFRESH_SECRET
+      )
+
+      if (token & refreshToken) {
+        res.status(200).json({ msg: 'Everything is ok' })
+      }
+    } catch (e) {
+      res.status(403).json(e)
+    }
   }
 }
