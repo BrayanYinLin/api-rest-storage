@@ -9,6 +9,7 @@ import userRoute from './routes/user.js'
 import productRoute from './routes/product.js'
 import recordRoute from './routes/record.js'
 import reportRoute from './routes/report.js'
+import unitsRoute from './routes/units.js'
 //  Dotenv
 import 'dotenv/config'
 
@@ -72,6 +73,7 @@ app.use('/api/user', userRoute)
 app.use('/api/product', productRoute)
 app.use('/api/record', recordRoute)
 app.use('/api/report', reportRoute)
+app.use('/api/unit', unitsRoute)
 app.disable('x-powered-by')
 
 app.listen(port, () => {
