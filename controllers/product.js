@@ -7,6 +7,26 @@ import {
 } from '../schemas/products.js'
 
 export default class ProductController {
+  static getProductsByName = async (req, res) => {
+    try {
+      if (!req.session.user) {
+        throw new UnauthorizedAction('Forbidden Action: Get products by name')
+      }
+      const { name } = req.params
+      const { data, error } = checkUpdateProduct({ product_name: name })
+      if (error) return res.status(422).json(error)
+
+      const products = await Storage.getProductsByName({
+        name: data.product_name
+      })
+
+      res.json(products.slice(0, 4))
+    } catch (e) {
+      console.error(e.message)
+      return res.status(400).json({ msg: 'Unexpected Error' })
+    }
+  }
+
   static getProducts = async (req, res) => {
     try {
       if (!req.session.user) {
