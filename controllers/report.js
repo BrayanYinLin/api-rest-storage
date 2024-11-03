@@ -50,13 +50,13 @@ export default class Report {
         month: requestMonth
       })
 
-      res.setHeader('Content-Disposition', `Reporte_${requestMonth}`)
-      res.setHeader(
-        'Content-Type',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      )
-
-      res.send(excelBuffer)
+      res
+        .set({
+          'Content-Disposition': `attachment; filename=Reporte_${requestMonth}.xlsx`,
+          'Content-Type':
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+        .send(excelBuffer)
     } catch (e) {
       console.error(e)
       res.status(400).json({ msg: e.message })

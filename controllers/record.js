@@ -81,10 +81,10 @@ export default class RecordController {
 
       res.json(newRecord)
     } catch (e) {
-      if (e.message === 'Forbbiden to access records') {
+      if (e instanceof UnauthorizedAction) {
         res.status(403).json({ msg: e.message })
       } else {
-        res.status(403).json({ msg: e.message })
+        res.status(400).json({ msg: e.message, name: e.name })
       }
     }
   }
