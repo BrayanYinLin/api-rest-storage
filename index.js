@@ -30,24 +30,16 @@ app.use((req, res, next) => {
   try {
     const token = req.cookies.access_token
     const refresh_token = req.cookies.refresh_token
-    if (req.path === '/api/user/login' || req.path === '/api/user/register') {
+    if (
+      req.path === '/api/user/login' ||
+      req.path === '/api/user/register' ||
+      req.path === '/api/user/check' ||
+      req.path === '/api/user/refresh'
+    ) {
       return next()
     }
 
     if (!token) throw new MissingToken('Missing Token')
-
-    if (req.path === '/api/user/refresh') {
-      const refresh = jsonwebtoken.verify(
-        refresh_token,
-        process.env.REFRESH_SECRET
-      )
-      req.session = {
-        user: token,
-        refresh: refresh
-      }
-      return next()
-    }
-
     const user = jsonwebtoken.verify(token, process.env.SECRET)
     const refresh = jsonwebtoken.verify(
       refresh_token,

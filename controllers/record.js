@@ -7,6 +7,23 @@ import {
 import { Storage } from '../models/local.js'
 
 export default class RecordController {
+  static getMostConsumedProducts = async (req, res) => {
+    try {
+      if (!res.session.user) {
+        throw new UnauthorizedAction('Cannot GET most consumed products')
+      }
+      const lastRecords = await Storage.getMostConsumedProduct()
+
+      res.json(lastRecords)
+    } catch (e) {
+      if (e instanceof UnauthorizedAction) {
+        res.status(401).json({ msg: 'There was an error' })
+      } else {
+        res.status(400).json({ msg: 'Cannot access to this endpoint' })
+      }
+    }
+  }
+
   static getIncomeRecords = async (req, res) => {
     try {
       if (!req.session.user) {

@@ -1,10 +1,7 @@
 import { Storage } from '../models/local.js'
 import jsonwebtoken from 'jsonwebtoken'
 import { checkSignUpUser, checkSignInUser } from '../schemas/users.js'
-import { MissingRefreshToken } from '../utils/error_factory.js'
 import 'dotenv/config'
-
-const { TokenExpiredError } = jsonwebtoken
 
 export default class UserController {
   static register = async (req, res) => {
@@ -100,32 +97,35 @@ export default class UserController {
 
   static refresh = async (req, res) => {
     try {
-      if (!req.session.refresh) {
-        console.log(req.session.refresh)
-        throw new MissingRefreshToken('Refresh token is missing: sign in again')
-      }
-      jsonwebtoken.verify(req.session.user, process.env.SECRET)
-    } catch (e) {
-      if (e instanceof MissingRefreshToken) {
-        res.status(401).json({ msg: e.message })
-      } else if (e instanceof TokenExpiredError) {
-        const refreshUser = await Storage.refresh(req.session.refresh)
+      const refresh = jsonwebtoken.verify(
+        req.cookies.refresh_token,
+        process.env.REFRESH_SECRET
+      )
+      const userRefreshed = await Storage.refresh({ id: refresh.id })
 
-        const token = jsonwebtoken.sign(refreshUser, process.env.SECRET, {
+      const newAccessToken = jsonwebtoken.sign(
+        userRefreshed,
+        process.env.SECRET,
+        {
           expiresIn: '8h'
-          // expiresIn: 20
-        })
+        }
+      )
 
-        res
-          .cookie('access_token', token, {
-            httpOnly: process.env.ENV === 'DEVELOPMENT',
-            sameSite: 'strict',
-            secure: false, //process.env.ENV === 'DEVELOPMENT'
-            maxAge: 1000 * 60 * 60 * 8
-            // maxAge: 1000 * 20
-          })
-          .json(refreshUser)
-      }
+      res
+        .cookie('access_token', newAccessToken, {
+          httpOnly: process.env.ENV === 'DEVELOPMENT',
+          sameSite: process.env.ENV === 'DEVELOPMENT' ? 'lax' : 'strict',
+          secure: false, //process.env.ENV === 'DEVELOPMENT'
+          maxAge: 1000 * 60 * 60 * 8
+        })
+        .json(userRefreshed)
+    } catch (e) {
+      console.error(e)
+      res.status(403).json({
+        msg: 'No se que ha pasao',
+        otra: e.name,
+        tokenMRD: req.cookies.refresh_token
+      })
     }
   }
 
@@ -142,12 +142,8 @@ export default class UserController {
         req.cookies.access_token,
         process.env.SECRET
       )
-      const refreshToken = jsonwebtoken.verify(
-        req.cookies.refresh_token,
-        process.env.REFRESH_SECRET
-      )
 
-      if (token & refreshToken) {
+      if (token) {
         res.status(200).json({ msg: 'Everything is ok' })
       }
     } catch (e) {
