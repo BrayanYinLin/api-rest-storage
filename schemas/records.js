@@ -2,42 +2,42 @@ import zod from 'zod'
 
 const recordId = zod
   .number({
-    invalid_type_error: 'Product id must be a number',
-    required_error: 'Product id is required'
+    invalid_type_error: 'Record id must be a number',
+    required_error: 'Record id is required'
   })
   .int()
   .positive()
 
 const recordSchema = zod.object({
-  record_id: recordId,
-  product_id: zod
+  recordId: recordId,
+  productId: zod
     .number({
       invalid_type_error: 'Product id must be a number',
       required_error: 'Product id is required'
     })
     .int()
     .positive(),
-  user_id: zod
+  userId: zod
     .number({
       invalid_type_error: 'User id must be a number',
       required_error: 'User id is required'
     })
     .int()
     .positive(),
-  record_type_id: zod
+  recordTypeId: zod
     .number({
       invalid_type_error: 'Record type id must be a number',
       required_error: 'Record type id is required'
     })
     .int()
     .positive(),
-  record_quantity: zod
+  recordQuantity: zod
     .number({
       invalid_type_error: 'Quantity must be a number',
       required_error: 'Quantity is required'
     })
     .positive(),
-  record_date: zod
+  recordDate: zod
     .string({
       invalid_type_error: 'Date must be a string',
       required_error: 'Date is required'
@@ -48,7 +48,8 @@ const recordSchema = zod.object({
 export function checkRecord(record) {
   return recordSchema
     .partial({
-      record_id: true
+      recordId: true,
+      recordTypeId: true
     })
     .required({
       record_date: true
@@ -59,10 +60,10 @@ export function checkRecord(record) {
 export function checkUpdateRecord({ record }) {
   return recordSchema
     .partial({
-      record_date: true,
-      record_quantity: true,
-      record_type_id: true,
-      product_id: true
+      recordDate: true,
+      recordQuantity: true,
+      recordTypeId: true,
+      productId: true
     })
     .safeParse(record)
 }

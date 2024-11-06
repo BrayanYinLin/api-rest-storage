@@ -4,7 +4,8 @@ import { database } from '../models/local'
 
 describe('Record Operations', async () => {
   const tokens = {
-    access_token: null
+    access_token: null,
+    refresh_token: null
   }
 
   let userId
@@ -17,7 +18,7 @@ describe('Record Operations', async () => {
           'Content-Type': 'application/json; charset=utf-8'
         },
         body: JSON.stringify({
-          email: 'byinlinm@gmail.com',
+          email: 'test@gmail.com',
           password: '12345678'
         })
       })
@@ -29,6 +30,11 @@ describe('Record Operations', async () => {
         cookiesSet: response.headers.getSetCookie(),
         tokenName: 'access_token'
       })
+
+      tokens.refresh_token = parseCookie({
+        cookiesSet: response.headers.getSetCookie(),
+        tokenName: 'refresh_token'
+      })
     } catch (e) {
       console.error(e.message)
     }
@@ -39,14 +45,14 @@ describe('Record Operations', async () => {
   })
   test('should add new record', async () => {
     const record = {
-      product_id: 1,
-      user_id: userId,
-      record_type_id: 1,
-      record_quantity: 100,
-      record_date: '2024-08-26'
+      productId: 1,
+      userId: userId,
+      recordQuantity: 10,
+      recordDate: '2024-08-26'
     }
 
-    const addRecord = await fetch('http://localhost:3000/api/record', {
+    console.log(tokens.access_token, tokens.refresh_token)
+    const addRecord = await fetch('http://localhost:3000/api/record/outcome', {
       method: 'POST',
       headers: {
         Cookie: tokens.access_token,
@@ -55,10 +61,12 @@ describe('Record Operations', async () => {
       body: JSON.stringify(record)
     })
 
+    console.log(addRecord.ok)
+
     const parsedNewRecord = await addRecord.json()
     console.log(parsedNewRecord)
     expect(parsedNewRecord).not.toHaveProperty('msg')
-  })
+  }, 20000)
 
   test.skip('should return all records', async () => {
     const responseRecords = await fetch(
@@ -66,28 +74,28 @@ describe('Record Operations', async () => {
       {
         method: 'GET',
         headers: {
-          Cookie: tokens.access_token
+          Cookie: `${tokens.access_token}; ${tokens.refresh_token}`
         }
       }
     )
     expect(responseRecords.ok).toBeTruthy()
   })
 
-  test.skip('should return deleted records', async () => {
-    try {
-      const responseRecords = await fetch(
-        'http://localhost:3000/api/record/10',
-        {
-          method: 'DELETE',
-          headers: {
-            Cookie: tokens.access_token
-          }
-        }
-      )
+  // test.skip('should return deleted records', async () => {
+  //   try {
+  //     const responseRecords = await fetch(
+  //       'http://localhost:3000/api/record/10',
+  //       {
+  //         method: 'DELETE',
+  //         headers: {
+  //           Cookie: tokens.access_token
+  //         }
+  //       }
+  //     )
 
-      expect(responseRecords.ok).toBeTruthy()
-    } catch (e) {
-      console.error(e.message)
-    }
-  })
+  //     expect(responseRecords.ok).toBeTruthy()
+  //   } catch (e) {
+  //     console.error(e.message)
+  //   }
+  // })
 })

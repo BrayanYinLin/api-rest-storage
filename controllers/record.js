@@ -38,7 +38,7 @@ export default class RecordController {
     }
   }
 
-  static getExpensesRecords = async (req, res) => {
+  static getOutcomesRecords = async (req, res) => {
     try {
       if (!req.session.user) {
         throw new UnauthorizedAction('Unauthorized Action: Get Income records')
@@ -66,36 +66,59 @@ export default class RecordController {
     }
   }
 
-  static createRecord = async (req, res) => {
+  static createOutcome = async (req, res) => {
     try {
       if (!req.session.user) {
         throw new UnauthorizedAction('Forbbiden to access records')
       }
-      const {
-        product_id,
-        user_id,
-        record_type_id,
-        record_quantity,
-        record_date
-      } = req.body
+      const { productId, userId, quantity, date } = req.body
 
       const { data, error } = checkRecord({
-        product_id: Number(product_id),
-        user_id: Number(user_id),
-        record_type_id: Number(record_type_id),
-        record_quantity: Number(record_quantity),
-        record_date
+        productId: Number(productId),
+        userId: Number(userId),
+        recordQuantity: Number(quantity),
+        recordDate: date
       })
 
       if (error) return res.status(422).json({ msg: error })
-      const newRecord = await Storage.createRecord({
-        product_id: data.product_id,
-        user_id: data.user_id,
-        record_type_id: data.record_type_id,
-        record_quantity: data.record_quantity,
-        record_date: data.record_date
+      const newRecord = await Storage.createOutcomeRecord({
+        productId: data.productId,
+        userId: data.userId,
+        recordQuantity: data.recordQuantity,
+        recordDate: data.recordDate
       })
 
+      res.json(newRecord)
+    } catch (e) {
+      if (e instanceof UnauthorizedAction) {
+        res.status(403).json({ msg: e.message })
+      } else {
+        res.status(400).json({ msg: e.message, name: e.name })
+      }
+    }
+  }
+
+  static createIncome = async (req, res) => {
+    try {
+      if (!req.session.user) {
+        throw new UnauthorizedAction('Forbbiden to access records')
+      }
+      const { productId, userId, quantity, date } = req.body
+
+      const { data, error } = checkRecord({
+        productId: Number(productId),
+        userId: Number(userId),
+        recordQuantity: Number(quantity),
+        recordDate: date
+      })
+
+      if (error) return res.status(422).json({ msg: error })
+      const newRecord = await Storage.createIncomeRecord({
+        productId: data.productId,
+        userId: data.userId,
+        recordQuantity: data.recordQuantity,
+        recordDate: data.recordDate
+      })
       res.json(newRecord)
     } catch (e) {
       if (e instanceof UnauthorizedAction) {
@@ -113,7 +136,7 @@ export default class RecordController {
       }
       const checkRecord = checkUpdateRecord({
         record: {
-          record_id: req.params.id,
+          recordId: req.params.id,
           ...req.body
         }
       })
