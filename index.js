@@ -26,10 +26,11 @@ app.use(
 )
 app.use(cookieParser())
 app.use((req, res, next) => {
-  req.session = { user: null }
+  req.session = {
+    user: null,
+    refresh: null
+  }
   try {
-    const token = req.cookies.access_token
-    const refresh_token = req.cookies.refresh_token
     if (
       req.path === '/api/user/login' ||
       req.path === '/api/user/register' ||
@@ -38,8 +39,10 @@ app.use((req, res, next) => {
     ) {
       return next()
     }
-
+    const token = req.cookies.access_token
+    const refresh_token = req.cookies.refresh_token
     if (!token) throw new MissingToken('Missing Token')
+    if (!refresh_token) throw new MissingToken('Refresh token missing')
     const user = jsonwebtoken.verify(token, process.env.SECRET)
     const refresh = jsonwebtoken.verify(
       refresh_token,
@@ -57,7 +60,7 @@ app.use((req, res, next) => {
     if (e instanceof TokenExpiredError) {
       res.status(401).json({ msg: 'Token expired' })
     } else if (e instanceof MissingToken) {
-      res.status(401).json({ msg: 'Missing Token' })
+      res.status(401).json({ msg: e.message })
     }
   }
 })

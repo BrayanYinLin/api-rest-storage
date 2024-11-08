@@ -23,7 +23,6 @@ describe('Record Operations', async () => {
         })
       })
       const user = await response.json()
-      console.log(user)
       userId = user.id
 
       tokens.access_token = parseCookie({
@@ -43,30 +42,44 @@ describe('Record Operations', async () => {
   afterAll(async () => {
     await database.close()
   })
-  test('should add new record', async () => {
+
+  test('should returno 5 products most consumed', async () => {
+    const mostConsumed = await fetch(
+      'http://localhost:3000/api/record/outcome/mostconsumed',
+      {
+        headers: {
+          Cookie: `${tokens.access_token}; ${tokens.refresh_token}`
+        }
+      }
+    )
+
+    const parsedNewRecord = await mostConsumed.json()
+    expect(parsedNewRecord).not.toHaveProperty('msg')
+  })
+
+  test.skip('should add new record', async () => {
     const record = {
       productId: 1,
       userId: userId,
       recordQuantity: 10,
       recordDate: '2024-08-26'
     }
-
-    console.log(tokens.access_token, tokens.refresh_token)
-    const addRecord = await fetch('http://localhost:3000/api/record/outcome', {
+    const response = await fetch('http://localhost:3000/api/record/outcome', {
       method: 'POST',
       headers: {
-        Cookie: tokens.access_token,
+        Cookie: `${tokens.access_token}; ${tokens.refresh_token}`,
         'Content-Type': 'application/json; charset=utf-8'
       },
       body: JSON.stringify(record)
     })
 
-    console.log(addRecord.ok)
+    expect(response.ok).toBeTruthy()
 
-    const parsedNewRecord = await addRecord.json()
-    console.log(parsedNewRecord)
-    expect(parsedNewRecord).not.toHaveProperty('msg')
-  }, 20000)
+    const newRecord = await response.json()
+    console.log(newRecord)
+
+    expect(newRecord).not.toHaveProperty('msg')
+  })
 
   test.skip('should return all records', async () => {
     const responseRecords = await fetch(
@@ -81,21 +94,21 @@ describe('Record Operations', async () => {
     expect(responseRecords.ok).toBeTruthy()
   })
 
-  // test.skip('should return deleted records', async () => {
-  //   try {
-  //     const responseRecords = await fetch(
-  //       'http://localhost:3000/api/record/10',
-  //       {
-  //         method: 'DELETE',
-  //         headers: {
-  //           Cookie: tokens.access_token
-  //         }
-  //       }
-  //     )
+  test.skip('should return deleted records', async () => {
+    try {
+      const responseRecords = await fetch(
+        'http://localhost:3000/api/record/10',
+        {
+          method: 'DELETE',
+          headers: {
+            Cookie: `${tokens.access_token}; ${tokens.refresh_token}`
+          }
+        }
+      )
 
-  //     expect(responseRecords.ok).toBeTruthy()
-  //   } catch (e) {
-  //     console.error(e.message)
-  //   }
-  // })
+      expect(responseRecords.ok).toBeTruthy()
+    } catch (e) {
+      console.error(e.message)
+    }
+  })
 })
