@@ -16,7 +16,7 @@ export default class Report {
       })
 
       const requestMonth = getMonth({ index: Number(month), lang: 'es-ES' })
-      const excelBuffer = createReportBase64({
+      const excelBuffer = await createReportBase64({
         data: resume,
         month: requestMonth
       })
@@ -45,7 +45,7 @@ export default class Report {
       })
 
       const requestMonth = getMonth({ index: Number(month), lang: 'es-ES' })
-      const excelBuffer = createReportBase64({
+      const excelBuffer = await createReportBase64({
         data: resume,
         month: requestMonth
       })

@@ -19,7 +19,7 @@ Esta API permite gestionar productos y registros de ingresos y gastos en el sist
 #### Ejemplo de solicitud:
 
 ```javascript
-fetch('https://api.miapp.com/v1/api/product', {
+fetch('https://api.miapp.com/api/product', {
   method: 'GET',
 })
 .then(response => response.json())
@@ -63,7 +63,7 @@ Parámetros del cuerpo de la solicitud:
 #### Ejemplo de solicitud:
 
 ```js
-fetch('https://api.miapp.com/v1/api/product', {
+fetch('https://api.miapp.com/api/product', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ Parámetros del cuerpo de la solicitud:
 
 Ejemplo de solicitud:
 ```js
-fetch('https://api.miapp.com/v1/api/product/3', {
+fetch('https://api.miapp.com/api/product/3', {
   method: 'PUT',
   headers: {
     'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ Ejemplo de respuesta exitosa (200 OK):
 
 Ejemplo de solicitud:
 ```js
-fetch('https://api.miapp.com/v1/api/record/incomes', {
+fetch('https://api.miapp.com/api/record/incomes', {
   method: 'GET',
 })
 .then(response => response.json())
@@ -175,7 +175,7 @@ Ejemplo de respuesta exitosa (200 OK):
 
 Ejemplo de solicitud:
 ```js
-fetch('https://api.miapp.com/v1/api/record/expense', {
+fetch('https://api.miapp.com/api/record/expense', {
   method: 'GET',
 })
 .then(response => response.json())
@@ -191,7 +191,7 @@ fetch('https://api.miapp.com/v1/api/record/expense', {
 
 Ejemplo de solicitud:
 ```js
-fetch('https://api.miapp.com/v1/api/record/all', {
+fetch('https://api.miapp.com/api/record/all', {
   method: 'GET',
 })
 .then(response => response.json())
@@ -218,7 +218,7 @@ Parámetros del cuerpo de la solicitud:
 
 Ejemplo de solicitud:
 ```js
-fetch('https://api.miapp.com/v1/api/record/1', {
+fetch('https://api.miapp.com/api/record/1', {
   method: 'PUT',
   headers: {
     'Content-Type': 'application/json',
@@ -256,7 +256,7 @@ Ejemplo de respuesta exitosa (200 OK):
 
 Ejemplo de solicitud:
 ```js
-fetch('https://api.miapp.com/v1/api/record/1', {
+fetch('https://api.miapp.com/api/record/1', {
   method: 'DELETE',
 })
 .then(response => response.json())
@@ -284,7 +284,7 @@ Parámetros del cuerpo de la solicitud:
 
 Ejemplo de solicitud:
 ```js
-fetch('https://api.miapp.com/v1/api/record', {
+fetch('https://api.miapp.com/api/record', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',

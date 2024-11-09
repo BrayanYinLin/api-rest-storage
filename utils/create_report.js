@@ -1,41 +1,37 @@
-import { utils, write } from 'xlsx'
+import Excel from 'exceljs'
 
-export default function createReportBase64({ data, month }) {
-  const workbook = utils.book_new()
-  const worksheet = utils.json_to_sheet(data)
+export default async function createReportBase64({ data, month }) {
+  const { Workbook } = Excel
+  const workbook = new Workbook()
+  workbook.creator = 'Brayan Yin Lin'
+  const worksheet = workbook.addWorksheet(`Reporte Mes ${month}`)
+  worksheet.columns = [
+    { header: 'Producto', key: 'producto', width: 35 },
+    { header: 'Unidad de Medida', key: 'unidad', width: 30 },
+    { header: 'Cantidad', key: 'cantidad', width: 10 },
+    { header: 'Fecha', key: 'fecha', width: 12 }
+  ]
 
-  const headerCellStyle = {
-    fill: { fgColor: { rgb: 'FFCCCC00' } },
-    font: { bold: true, sz: 12 },
-    alignment: { vertical: 'center', horizontal: 'center' },
-    border: {
-      top: { style: 'thin', color: { rgb: '000000' } },
-      bottom: { style: 'thin', color: { rgb: '000000' } },
-      left: { style: 'thin', color: { rgb: '000000' } },
-      right: { style: 'thin', color: { rgb: '000000' } }
-    }
-  }
-  const headerRange = utils.decode_range(worksheet['!ref'])
+  const mappedData = data.map((record) => Object.values(record))
 
-  for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
-    const cellAddress = utils.encode_cell({ c: col, r: 0 })
-    if (!worksheet[cellAddress]) continue
-    worksheet[cellAddress].s = headerCellStyle
-  }
+  worksheet.addTable({
+    name: 'ReporteTable',
+    ref: 'A1',
+    headerRow: true,
+    style: {
+      theme: 'TableStyleMedium8',
+      showRowStripes: true
+    },
+    columns: [
+      { key: 'producto', name: 'Producto' },
+      { key: 'unidad', name: 'Unidad de Medida' },
+      { key: 'cantidad', name: 'Cantidad' },
+      { key: 'fecha', name: 'Fecha' }
+    ],
+    rows: mappedData
+  })
 
-  const columnWidths = data.reduce((widths, row) => {
-    Object.keys(row).forEach((key, index) => {
-      const valueLength = row[key] ? row[key].toString().length * 1.5 : 10
-      widths[index] = Math.max(widths[index] || 10, valueLength + 5)
-    })
-    return widths
-  }, [])
-
-  worksheet['!cols'] = columnWidths.map((width) => ({ wch: width }))
-
-  utils.book_append_sheet(workbook, worksheet, `Reporte Mes ${month}`)
-
-  const buffer = write(workbook, { bookType: 'xlsx', type: 'buffer' })
+  const buffer = await workbook.xlsx.writeBuffer()
 
   return buffer
 }
