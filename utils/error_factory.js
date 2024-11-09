@@ -46,3 +46,7 @@ export const UnexpectedCreateRecordError = createError({
 export const RecordNotFound = createError({
   name: 'ProductNotFound'
 })
+
+export const NoRowsAffected = createError({
+  name: 'NoRowsAffected'
+})

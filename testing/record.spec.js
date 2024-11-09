@@ -54,6 +54,7 @@ describe('Record Operations', async () => {
     )
 
     const parsedNewRecord = await mostConsumed.json()
+    console.log(parsedNewRecord)
     expect(parsedNewRecord).not.toHaveProperty('msg')
   })
 
