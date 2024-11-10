@@ -34,6 +34,8 @@ describe('Record Operations', async () => {
         cookiesSet: response.headers.getSetCookie(),
         tokenName: 'refresh_token'
       })
+
+      console.log(tokens.access_token, tokens.refresh_token)
     } catch (e) {
       console.error(e.message)
     }
@@ -54,16 +56,15 @@ describe('Record Operations', async () => {
     )
 
     const parsedNewRecord = await mostConsumed.json()
-    console.log(parsedNewRecord)
     expect(parsedNewRecord).not.toHaveProperty('msg')
   })
 
   test.skip('should add new record', async () => {
     const record = {
-      productId: 1,
+      productId: 4,
       userId: userId,
-      recordQuantity: 10,
-      recordDate: '2024-08-26'
+      quantity: 10,
+      date: '2024-08-26'
     }
     const response = await fetch('http://localhost:3000/api/record/outcome', {
       method: 'POST',
@@ -74,10 +75,8 @@ describe('Record Operations', async () => {
       body: JSON.stringify(record)
     })
 
-    expect(response.ok).toBeTruthy()
-
     const newRecord = await response.json()
-    console.log(newRecord)
+    expect(response.ok).toBeTruthy()
 
     expect(newRecord).not.toHaveProperty('msg')
   })

@@ -89,13 +89,13 @@ export default class RecordController {
       if (!req.session.user) {
         throw new UnauthorizedAction('Forbbiden to access records')
       }
-      const { productId, userId, recordQuantity, recordDate } = req.body
+      const { productId, userId, quantity, date } = req.body
 
       const { data, error } = checkRecord({
         productId: Number(productId),
         userId: Number(userId),
-        recordQuantity: Number(recordQuantity),
-        recordDate
+        recordQuantity: Number(quantity),
+        recordDate: date
       })
 
       if (error) return res.status(422).json({ msg: error })
@@ -121,13 +121,13 @@ export default class RecordController {
       if (!req.session.user) {
         throw new UnauthorizedAction('Forbbiden to access records')
       }
-      const { productId, userId, recordQuantity, recordDate } = req.body
+      const { productId, userId, quantity, date } = req.body
 
       const { data, error } = checkRecord({
         productId: Number(productId),
         userId: Number(userId),
-        recordQuantity: Number(recordQuantity),
-        recordDate
+        recordQuantity: Number(quantity),
+        recordDate: date
       })
 
       if (error) return res.status(422).json({ msg: error })
@@ -155,7 +155,10 @@ export default class RecordController {
       const checkRecord = checkUpdateRecord({
         record: {
           recordId: req.params.id,
-          ...req.body
+          userId: req.body.userId,
+          productId: req.body.productId,
+          recordQuantity: req.body.recordQuantity,
+          recordDate: req.body.recordDate
         }
       })
       const updatedRecord = await Storage.updateRecord(checkRecord.data)

@@ -3,7 +3,8 @@ import { parseCookie } from '../utils/cookie_parser.js'
 
 describe('Product Tests', async () => {
   const tokens = {
-    access_token: null
+    access_token: null,
+    refresh_token: null
   }
 
   beforeAll(async () => {
@@ -14,7 +15,7 @@ describe('Product Tests', async () => {
           'Content-Type': 'application/json; charset=utf-8'
         },
         body: JSON.stringify({
-          email: 'byinlinm@gmail.com',
+          email: 'test@gmail.com',
           password: '12345678'
         })
       })
@@ -23,6 +24,13 @@ describe('Product Tests', async () => {
         cookiesSet: response.headers.getSetCookie(),
         tokenName: 'access_token'
       })
+
+      tokens.refresh_token = parseCookie({
+        cookiesSet: response.headers.getSetCookie(),
+        tokenName: 'refresh_token'
+      })
+
+      console.log(tokens.access_token, tokens.refresh_token)
     } catch (e) {
       console.error(e.message)
     }
@@ -33,7 +41,7 @@ describe('Product Tests', async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
-        Cookie: tokens.access_token
+        Cookie: `${tokens.access_token}; ${tokens.refresh_token}`
       },
       body: JSON.stringify({
         name: 'Bolsas 20*30',
