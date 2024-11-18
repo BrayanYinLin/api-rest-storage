@@ -1,4 +1,4 @@
-import { describe, test, beforeAll, expect } from 'vitest'
+import { describe, test, beforeAll, expect, afterAll } from 'vitest'
 import { parseCookie } from '../utils/cookie_parser.js'
 
 describe('Report Tests', () => {
@@ -30,7 +30,16 @@ describe('Report Tests', () => {
     })
   })
 
-  test('Should return a report', async () => {
+  afterAll(async () => {
+    await fetch('http://localhost:3000/api/user/logout', {
+      method: 'POST',
+      headers: {
+        Cookie: `${tokens.access_token}; ${tokens.refresh_token}`
+      }
+    })
+  })
+
+  test('should return a report', async () => {
     const reportResponse = await fetch(
       'http://localhost:3000/api/report/expenses?month=10&year=2024',
       {

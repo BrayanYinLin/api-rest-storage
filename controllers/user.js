@@ -1,4 +1,4 @@
-import { Storage } from '../models/local.js'
+import { Storage } from '../models/database.js'
 import jsonwebtoken from 'jsonwebtoken'
 import { checkSignUpUser, checkSignInUser } from '../schemas/users.js'
 import 'dotenv/config'

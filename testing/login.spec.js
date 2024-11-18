@@ -1,5 +1,6 @@
 import { expect, test, describe } from 'vitest'
 import { parseCookie } from '../utils/cookie_parser.js'
+import { CREDENTIALS } from './credentials.js'
 
 describe('Sign in process', () => {
   const tokens = {
@@ -15,8 +16,8 @@ describe('Sign in process', () => {
           'Content-Type': 'application/json; charset=utf-8'
         },
         body: JSON.stringify({
-          email: 'test@gmail.com',
-          password: '12345678'
+          email: CREDENTIALS.EMAIL,
+          password: CREDENTIALS.PASSWORD
         })
       })
 

@@ -1,6 +1,5 @@
 import { describe, test, expect, beforeAll, afterAll } from 'vitest'
-import { parseCookie } from '../utils/cookie_parser'
-import { database } from '../models/local'
+import { parseCookie } from '../utils/cookie_parser.js'
 
 describe('Record Operations', async () => {
   const tokens = {
@@ -34,15 +33,18 @@ describe('Record Operations', async () => {
         cookiesSet: response.headers.getSetCookie(),
         tokenName: 'refresh_token'
       })
-
-      console.log(tokens.access_token, tokens.refresh_token)
     } catch (e) {
       console.error(e.message)
     }
   })
 
   afterAll(async () => {
-    await database.close()
+    await fetch('http://localhost:3000/api/user/logout', {
+      method: 'POST',
+      headers: {
+        Cookie: `${tokens.access_token}; ${tokens.refresh_token}`
+      }
+    })
   })
 
   test('should returno 5 products most consumed', async () => {
@@ -81,7 +83,7 @@ describe('Record Operations', async () => {
     expect(newRecord).not.toHaveProperty('msg')
   })
 
-  test.skip('should return all records', async () => {
+  test('should return all records', async () => {
     const responseRecords = await fetch(
       'http://localhost:3000/api/record/all',
       {

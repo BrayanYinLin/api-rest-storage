@@ -15,7 +15,7 @@ const UserSignUp = zod.object({
       invalid_type_error: 'Password must be a string',
       required_error: 'Password is required'
     })
-    .length(8)
+    .min(8)
 })
 
 const UserSignIn = zod.object({
@@ -29,7 +29,7 @@ const UserSignIn = zod.object({
       invalid_type_error: 'Password must be a string',
       required_error: 'Password is required'
     })
-    .length(8)
+    .min(8)
 })
 
 export function checkSignUpUser({ name, email, password }) {

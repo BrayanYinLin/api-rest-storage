@@ -8,7 +8,7 @@ import {
   RepeatedProduct,
   UnexpectedCreateRecordError,
   UserNotFound
-} from '../utils/error_factory'
+} from '../utils/error_factory.js'
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL,
@@ -149,23 +149,21 @@ export class Storage {
    *
    * @async
    * @function getAllUnits
-   * @returns {Promise<Array<{ id: number, unit: string }>>} A promise that resolves to an array of objects,
+   * @returns {Promise<Array<{ unitId: number, unitName: string }>>} A promise that resolves to an array of objects,
    * each containing the `id` (volume_id) and `unit` (volume_name).
    *
    * @example
    * const units = await YourClass.getAllUnits();
    * console.log(units);
-   * // Output: [{ id: 1, unit: 'Liters' }, { id: 2, unit: 'Gallons' }, ...]
+   * // Output: [{ unitId: 1, unitName: 'Liters' }, { unitId: 2, unitName: 'Gallons' }, ...]
    */
   static getAllUnits = async () => {
     const { rows } = await turso.execute({
-      sql: 'SELECT volume_id, volume_name FROM "volume"'
+      sql: 'SELECT * FROM view_unit',
+      args: []
     })
 
-    return rows.map((volume) => ({
-      id: volume.volume_id,
-      unit: volume.volume_name
-    }))
+    return rows
   }
 
   /**
@@ -260,7 +258,10 @@ export class Storage {
    * // ]
    */
   static getAllProducts = async () => {
-    const products = await turso.execute('SELECT * FROM view_product')
+    const products = await turso.execute({
+      sql: 'SELECT * FROM view_product',
+      args: []
+    })
     return products
   }
 
@@ -298,21 +299,18 @@ export class Storage {
    */
   static createProduct = async ({ name, stock, volume }) => {
     try {
-      const { rowsAffected } = await turso.execute(
-        'INSERT INTO "product"(product_name, product_stock, volume_id) VALUES (?, ?, ?);',
-        name,
-        stock,
-        volume
-      )
+      const { rowsAffected } = await turso.execute({
+        sql: 'INSERT INTO "product"(product_name, product_stock, volume_id) VALUES (?, ?, ?);',
+        args: [name, stock, volume]
+      })
 
       if (rowsAffected === 0)
         throw new NoRowsAffected('Error: No se pudo crear el producto')
 
-      const newProduct = await turso.execute(
-        'SELECT * FROM view_product p WHERE productName = ? AND unitId = ?',
-        name,
-        volume
-      )
+      const newProduct = await turso.execute({
+        sql: 'SELECT * FROM view_product p WHERE productName = ? AND unitId = ?',
+        args: [name, volume]
+      })
 
       return {
         name: newProduct.product_name,
@@ -389,7 +387,8 @@ export class Storage {
 
   static getAllRecords = async () => {
     const records = await turso.execute({
-      sql: 'SELECT * FROM show_records'
+      sql: 'SELECT * FROM show_records',
+      args: []
     })
     return records
   }
@@ -399,7 +398,8 @@ export class Storage {
    */
   static getIncomeRecords = async () => {
     const records = await turso.execute({
-      sql: 'SELECT * FROM show_incomes'
+      sql: 'SELECT * FROM show_incomes',
+      args: []
     })
     return records
   }
@@ -409,7 +409,8 @@ export class Storage {
    */
   static getExpensesRecords = async () => {
     const records = await turso.execute({
-      sql: 'SELECT * FROM show_expenses'
+      sql: 'SELECT * FROM show_expenses',
+      args: []
     })
     return records
   }
@@ -427,7 +428,8 @@ export class Storage {
       })
 
       const newRecord = await turso.execute({
-        sql: 'SELECT record_id AS recordId, p.product_id AS productId, p.product_name AS productName, v.volume_name AS unitName, user_id AS userId, record_type_id AS recordTypeId, record_quantity AS recordQuantity, record_date AS recordDate FROM record r INNER JOIN product p ON p.product_id = r.product_id INNER JOIN volume v ON p.volume_id = v.volume_id ORDER BY record_strict_date DESC LIMIT 1;'
+        sql: 'SELECT record_id AS recordId, p.product_id AS productId, p.product_name AS productName, v.volume_name AS unitName, user_id AS userId, record_type_id AS recordTypeId, record_quantity AS recordQuantity, record_date AS recordDate FROM record r INNER JOIN product p ON p.product_id = r.product_id INNER JOIN volume v ON p.volume_id = v.volume_id ORDER BY record_strict_date DESC LIMIT 1;',
+        args: []
       })
 
       return newRecord
@@ -449,7 +451,8 @@ export class Storage {
       })
 
       const { rows } = await turso.execute({
-        sql: 'SELECT record_id AS recordId, p.product_id AS productId, p.product_name AS productName, v.volume_name AS unitName, user_id AS userId, record_type_id AS recordTypeId, record_quantity AS recordQuantity, record_date AS recordDate FROM record r INNER JOIN product p ON p.product_id = r.product_id INNER JOIN volume v ON p.volume_id = v.volume_id ORDER BY record_strict_date DESC LIMIT 1;'
+        sql: 'SELECT record_id AS recordId, p.product_id AS productId, p.product_name AS productName, v.volume_name AS unitName, user_id AS userId, record_type_id AS recordTypeId, record_quantity AS recordQuantity, record_date AS recordDate FROM record r INNER JOIN product p ON p.product_id = r.product_id INNER JOIN volume v ON p.volume_id = v.volume_id ORDER BY record_strict_date DESC LIMIT 1;',
+        args: []
       })
 
       return rows
@@ -485,10 +488,10 @@ export class Storage {
    * Delete record by id
    */
   static deleteRecord = async ({ id }) => {
-    const { rows } = await turso.execute(
-      'SELECT * FROM record WHERE record_id = ?',
-      id
-    )
+    const { rows } = await turso.execute({
+      sql: 'SELECT * FROM record WHERE record_id = ?',
+      args: [id]
+    })
 
     if (rows) {
       throw new RecordNotFound('Record not found')
@@ -575,7 +578,8 @@ export class Storage {
 
   static getMostConsumedProduct = async () => {
     const { rows } = await turso.execute({
-      sql: 'SELECT * FROM most_consumed_products'
+      sql: 'SELECT * FROM most_consumed_products',
+      args: []
     })
 
     return rows
@@ -583,7 +587,8 @@ export class Storage {
 
   static getMostEnteredProduct = async () => {
     const { rows } = await turso.execute({
-      sql: 'SELECT * FROM most_entered_products'
+      sql: 'SELECT * FROM most_entered_products',
+      args: []
     })
 
     return rows

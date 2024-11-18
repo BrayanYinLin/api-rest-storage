@@ -1,4 +1,4 @@
-import { Storage } from '../models/local.js'
+import { Storage } from '../models/database.js'
 import { UnauthorizedAction } from '../utils/error_factory.js'
 
 export default class Unit {
@@ -10,13 +10,13 @@ export default class Unit {
 
       const units = await Storage.getAllUnits()
 
-      res.json(units)
+      return res.json(units)
     } catch (e) {
       if (e instanceof UnauthorizedAction) {
         return res.status(401).json({ msg: e.message })
       } else {
         console.error(e.message)
-        return res.status(400).json({ msg: 'Unexpected Error' })
+        return res.status(400).json({ msg: e.message })
       }
     }
   }
