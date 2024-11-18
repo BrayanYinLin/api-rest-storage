@@ -79,8 +79,7 @@ export default class RecordController {
       const records = await Storage.getAllRecords()
       res.json(records)
     } catch (e) {
-      console.error(e.message)
-      res.status(400).json({ msg: 'There was an error' })
+      res.status(400).json({ msg: e.message })
     }
   }
 
@@ -154,16 +153,16 @@ export default class RecordController {
       }
       const checkRecord = checkUpdateRecord({
         record: {
-          recordId: req.params.id,
-          userId: req.body.userId,
-          productId: req.body.productId,
-          recordQuantity: req.body.recordQuantity,
-          recordDate: req.body.recordDate
+          recordId: Number(req.params.id),
+          userId: Number(req.body.userId),
+          productId: Number(req.body.productId),
+          recordQuantity: Number(req.body.quantity),
+          recordDate: req.body.date
         }
       })
       const updatedRecord = await Storage.updateRecord(checkRecord.data)
 
-      return updatedRecord
+      return res.json(updatedRecord)
     } catch (e) {
       if (e instanceof UnauthorizedAction) {
         return res.status(401).json({ msg: e.message })

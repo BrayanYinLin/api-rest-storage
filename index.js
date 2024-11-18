@@ -20,8 +20,8 @@ const app = express()
 app.use(express.json())
 app.use(
   cors({
-    origin: 'http://localhost:5173', // Cambia esto a la URL de tu cliente
-    credentials: true // Permitir el envío de credenciales (cookies)
+    origin: 'http://localhost:5173',
+    credentials: true
   })
 )
 app.use(cookieParser())
@@ -30,29 +30,39 @@ app.use((req, res, next) => {
     user: null,
     refresh: null
   }
+  const AUTH_ROUTES = [
+    '/api/user/login',
+    '/api/user/register',
+    '/api/user/check',
+    '/api/user/refresh'
+  ]
   try {
-    if (
-      req.path === '/api/user/login' ||
-      req.path === '/api/user/register' ||
-      req.path === '/api/user/check' ||
-      req.path === '/api/user/refresh'
-    ) {
+    if (AUTH_ROUTES.some((route) => route === req.path)) {
       return next()
     }
+
+    //  Recupera las cookies
     const token = req.cookies.access_token
     const refresh_token = req.cookies.refresh_token
+
+    //  Verifica que existan
     if (!token) throw new MissingToken('Missing Token')
     if (!refresh_token) throw new MissingToken('Refresh token missing')
+
+    //  Las desencripta
     const user = jsonwebtoken.verify(token, process.env.SECRET)
     const refresh = jsonwebtoken.verify(
       refresh_token,
       process.env.REFRESH_SECRET
     )
 
+    //  Las agrega al session
     req.session = {
       user: user,
       refresh: refresh
     }
+
+    // Continua la peticion
     next()
   } catch (e) {
     req.session.user = null

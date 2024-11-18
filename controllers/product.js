@@ -87,9 +87,12 @@ export default class ProductController {
       const { data: productId, error: idError } = checkProductId(
         Number(req.params.id)
       )
-      const { data: productFields, error: fieldsError } = checkUpdateProduct(
-        req.body
-      )
+      const { productName, stock, unitId } = req.body
+      const { data: productFields, error: fieldsError } = checkUpdateProduct({
+        product_name: productName,
+        prduct_stock: stock,
+        volume_id: unitId
+      })
 
       if (fieldsError) return res.status(422).json({ msg: fieldsError })
       if (idError) return res.status(404).json({ msg: productId })

@@ -4,10 +4,11 @@ import 'dotenv/config'
 import {
   NoRowsAffected,
   PasswordWrong,
+  RecordNotFound,
   RepeatedProduct,
+  UnexpectedCreateRecordError,
   UserNotFound
 } from '../utils/error_factory'
-import { formatFields } from '../utils/format_field'
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL,
@@ -361,23 +362,230 @@ export class Storage {
    */
   static updateProduct = async (product) => {
     try {
-      const id = product.product_id
-      delete product.product_id
+      const { rowsAffected } = await turso.execute({
+        sql: 'UPDATE product SET product_name = COALESCE(:product_name, product_name), product_stock = COALESCE(:product_stock, product_stock), volume_id = COALESCE(:volume_id, volume_id) WHERE productId = :productId',
+        args: {
+          product_name: product.product_name,
+          product_stock: product.product_stock,
+          volume_id: product.volume_id,
+          product_id: product.product_id
+        }
+      })
 
-      const formatted = formatFields(product)
-      await turso.execute(
-        `UPDATE product SET ${formatted} WHERE product_id = ?`,
-        ...Object.values(product),
-        id
-      )
+      if (rowsAffected === 0) {
+        throw new Error('Product cannot be updated')
+      }
+
       const updatedProduct = await turso.execute(
         'SELECT * FROM view_product WHERE productId = ?',
-        id
+        product.product_id
       )
 
       return updatedProduct
     } catch (error) {
       throw new Error(error.message)
     }
+  }
+
+  static getAllRecords = async () => {
+    const records = await turso.execute({
+      sql: 'SELECT * FROM show_records'
+    })
+    return records
+  }
+
+  /**
+   * Returns income records
+   */
+  static getIncomeRecords = async () => {
+    const records = await turso.execute({
+      sql: 'SELECT * FROM show_incomes'
+    })
+    return records
+  }
+
+  /**
+   * Returns expenses record
+   */
+  static getExpensesRecords = async () => {
+    const records = await turso.execute({
+      sql: 'SELECT * FROM show_expenses'
+    })
+    return records
+  }
+
+  static createOutcomeRecord = async ({
+    productId,
+    userId,
+    recordQuantity,
+    recordDate
+  }) => {
+    try {
+      await turso.execute({
+        sql: 'INSERT INTO "record" (product_id, user_id, record_type_id, record_quantity, record_date) VALUES (?, ?, ?, ?, ?)',
+        args: [productId, userId, 2, recordQuantity, recordDate]
+      })
+
+      const newRecord = await turso.execute({
+        sql: 'SELECT record_id AS recordId, p.product_id AS productId, p.product_name AS productName, v.volume_name AS unitName, user_id AS userId, record_type_id AS recordTypeId, record_quantity AS recordQuantity, record_date AS recordDate FROM record r INNER JOIN product p ON p.product_id = r.product_id INNER JOIN volume v ON p.volume_id = v.volume_id ORDER BY record_strict_date DESC LIMIT 1;'
+      })
+
+      return newRecord
+    } catch (e) {
+      throw new UnexpectedCreateRecordError(e.message)
+    }
+  }
+
+  static createIncomeRecord = async ({
+    productId,
+    userId,
+    recordQuantity,
+    recordDate
+  }) => {
+    try {
+      await turso.execute({
+        sql: 'INSERT INTO "record" (product_id, user_id, record_type_id, record_quantity, record_date) VALUES (?, ?, ?, ?, ?)',
+        args: [productId, userId, 1, recordQuantity, recordDate]
+      })
+
+      const { rows } = await turso.execute({
+        sql: 'SELECT record_id AS recordId, p.product_id AS productId, p.product_name AS productName, v.volume_name AS unitName, user_id AS userId, record_type_id AS recordTypeId, record_quantity AS recordQuantity, record_date AS recordDate FROM record r INNER JOIN product p ON p.product_id = r.product_id INNER JOIN volume v ON p.volume_id = v.volume_id ORDER BY record_strict_date DESC LIMIT 1;'
+      })
+
+      return rows
+    } catch (e) {
+      throw new UnexpectedCreateRecordError(e.message)
+    }
+  }
+
+  /**
+   * Update a record by id
+   */
+  static updateRecord = async (record) => {
+    await turso.execute({
+      sql: 'UPDATE record SET user_id = COALESCE(:user_id, user_id), product_id = COALESCE(:product_id, product_id), record_quantity = COALESCE(:record_quantity, record_quantity), record_date = COALESCE(:record_date, record_date) WHERE record_id = :record_id',
+      arg: {
+        record_id: record.recordId,
+        user_id: record.userId,
+        product_id: record.productId,
+        record_quantity: record.recordQuantity,
+        record_date: record.recordDate
+      }
+    })
+
+    const { rows } = await turso.execute({
+      sql: 'SELECT record_id AS recordId, p.product_id AS productId, p.product_name AS productName, v.volume_name AS unitName, user_id AS userId, record_type_id AS recordTypeId, record_quantity AS recordQuantity, record_date AS recordDate FROM record r INNER JOIN product p ON p.product_id = r.product_id INNER JOIN volume v ON p.volume_id = v.volume_id WHERE r.record_id = ?',
+      args: [record.recordId]
+    })
+
+    return rows
+  }
+
+  /**
+   * Delete record by id
+   */
+  static deleteRecord = async ({ id }) => {
+    const { rows } = await turso.execute(
+      'SELECT * FROM record WHERE record_id = ?',
+      id
+    )
+
+    if (rows) {
+      throw new RecordNotFound('Record not found')
+    }
+
+    await turso.execute({
+      sql: 'DELETE FROM record WHERE record_id = ?',
+      arg: [id]
+    })
+    return rows
+  }
+
+  /**
+   * Return a resume by month oldness
+   */
+  static getExpensesResumeByMonth = async ({ month, year }) => {
+    if (month < 10) {
+      month = `0${month}`
+    }
+    const { rows } = await turso.execute({
+      sql: `SELECT product_name AS [Producto], v.volume_name AS [Unidad de Medida], sum(record_quantity) AS [Cantidad],
+        CASE 
+          WHEN strftime('%m', r.record_date) = '01' THEN 'Enero'
+          WHEN strftime('%m', r.record_date) = '02' THEN 'Febrero'
+          WHEN strftime('%m', r.record_date) = '03' THEN 'Marzo'
+          WHEN strftime('%m', r.record_date) = '04' THEN 'Abril'
+          WHEN strftime('%m', r.record_date) = '05' THEN 'Mayo'
+          WHEN strftime('%m', r.record_date) = '06' THEN 'Junio'
+          WHEN strftime('%m', r.record_date) = '07' THEN 'Julio'
+          WHEN strftime('%m', r.record_date) = '08' THEN 'Agosto'
+          WHEN strftime('%m', r.record_date) = '09' THEN 'Septiembre'
+          WHEN strftime('%m', r.record_date) = '10' THEN 'Octubre'
+          WHEN strftime('%m', r.record_date) = '11' THEN 'Noviembre'
+          WHEN strftime('%m', r.record_date) = '12' THEN 'Diciembre'
+          ELSE 'Mes desconocido'
+        END AS [Mes]
+      FROM record r
+      INNER JOIN product pr ON pr.product_id = r.product_id 
+      INNER JOIN volume v ON pr.volume_id = v.volume_id
+      INNER JOIN record_types rt ON r.record_type_id = rt.record_type_id
+      WHERE rt.record_type_id = 2 AND strftime('%m', r.record_date) = ? AND strftime('%Y', r.record_date) = ?
+      GROUP BY [Producto]`,
+      args: [month, year]
+    })
+
+    return rows
+  }
+
+  /**
+   * Return a resume by month oldness
+   */
+  static getIncomesResumeByMonth = async ({ month, year }) => {
+    if (month < 10) {
+      month = `0${month}`
+    }
+    const { rows } = await turso.execute({
+      sql: `SELECT product_name AS [Producto], v.volume_name AS [Unidad de Medida], sum(record_quantity) AS [Cantidad],
+        CASE 
+          WHEN strftime('%m', r.record_date) = '01' THEN 'Enero'
+          WHEN strftime('%m', r.record_date) = '02' THEN 'Febrero'
+          WHEN strftime('%m', r.record_date) = '03' THEN 'Marzo'
+          WHEN strftime('%m', r.record_date) = '04' THEN 'Abril'
+          WHEN strftime('%m', r.record_date) = '05' THEN 'Mayo'
+          WHEN strftime('%m', r.record_date) = '06' THEN 'Junio'
+          WHEN strftime('%m', r.record_date) = '07' THEN 'Julio'
+          WHEN strftime('%m', r.record_date) = '08' THEN 'Agosto'
+          WHEN strftime('%m', r.record_date) = '09' THEN 'Septiembre'
+          WHEN strftime('%m', r.record_date) = '10' THEN 'Octubre'
+          WHEN strftime('%m', r.record_date) = '11' THEN 'Noviembre'
+          WHEN strftime('%m', r.record_date) = '12' THEN 'Diciembre'
+          ELSE 'Mes desconocido'
+        END AS [Mes]
+      FROM record r
+      INNER JOIN product pr ON pr.product_id = r.product_id 
+      INNER JOIN volume v ON pr.volume_id = v.volume_id
+      INNER JOIN record_types rt ON r.record_type_id = rt.record_type_id
+      WHERE rt.record_type_id = 1 AND strftime('%m', r.record_date) = ? AND strftime('%Y', r.record_date) = ?
+      GROUP BY [Producto]`,
+      args: [month, year]
+    })
+
+    return rows
+  }
+
+  static getMostConsumedProduct = async () => {
+    const { rows } = await turso.execute({
+      sql: 'SELECT * FROM most_consumed_products'
+    })
+
+    return rows
+  }
+
+  static getMostEnteredProduct = async () => {
+    const { rows } = await turso.execute({
+      sql: 'SELECT * FROM most_entered_products'
+    })
+
+    return rows
   }
 }

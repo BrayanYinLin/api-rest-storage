@@ -34,13 +34,13 @@ export default class UserController {
         .cookie('access_token', token, {
           httpOnly: process.env.ENV === 'DEVELOPMENT',
           sameSite: 'strict',
-          secure: false, //process.env.ENV === 'DEVELOPMENT'
+          secure: false,
           maxAge: 1000 * 60 * 60 * 8
         })
         .cookie('refresh_token', refreshToken, {
           httpOnly: process.env.ENV === 'DEVELOPMENT',
           sameSite: 'strict',
-          secure: false, //process.env.ENV === 'DEVELOPMENT'
+          secure: false,
           maxAge: 1000 * 60 * 60 * 24 * 20
         })
         .json(userCreated)

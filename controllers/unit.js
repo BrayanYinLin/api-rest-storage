@@ -1,3 +1,4 @@
+import { Storage } from '../models/local.js'
 import { UnauthorizedAction } from '../utils/error_factory.js'
 
 export default class Unit {
@@ -7,7 +8,7 @@ export default class Unit {
         throw new UnauthorizedAction('Forbidden Action: Get products')
       }
 
-      const units = await Unit.getAllUnits()
+      const units = await Storage.getAllUnits()
 
       res.json(units)
     } catch (e) {
