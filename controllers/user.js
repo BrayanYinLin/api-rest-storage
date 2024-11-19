@@ -1,4 +1,4 @@
-import { Storage } from '../models/database.js'
+import loadStorage from '../utils/dynamic_import.js'
 import jsonwebtoken from 'jsonwebtoken'
 import { checkSignUpUser, checkSignInUser } from '../schemas/users.js'
 import 'dotenv/config'
@@ -6,6 +6,7 @@ import 'dotenv/config'
 export default class UserController {
   static register = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       const { email, password, name } = req.body
 
       const { data, error } = checkSignUpUser({ name, email, password })
@@ -51,6 +52,7 @@ export default class UserController {
 
   static login = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       const { email, password } = req.body
       const { data, error } = checkSignInUser({ email, password })
 
@@ -97,6 +99,7 @@ export default class UserController {
 
   static refresh = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       const refresh = jsonwebtoken.verify(
         req.cookies.refresh_token,
         process.env.REFRESH_SECRET

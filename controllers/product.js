@@ -1,5 +1,5 @@
-import { UnauthorizedAction } from '../utils/error_factory.js'
-import { Storage } from '../models/local.js'
+import { RepeatedProduct, UnauthorizedAction } from '../utils/error_factory.js'
+import loadStorage from '../utils/dynamic_import.js'
 import {
   checkProduct,
   checkProductId,
@@ -9,6 +9,7 @@ import {
 export default class ProductController {
   static getProductsByName = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Forbidden Action: Get products by name')
       }
@@ -29,6 +30,7 @@ export default class ProductController {
 
   static getProducts = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Forbidden Action: Get products')
       }
@@ -47,6 +49,7 @@ export default class ProductController {
 
   static createProduct = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user)
         throw new UnauthorizedAction('Forbidden Action: Create new product')
       const { name, stock, unitId } = req.body
@@ -68,6 +71,8 @@ export default class ProductController {
     } catch (e) {
       if (e instanceof UnauthorizedAction) {
         return res.status(401).json({ msg: e.message })
+      } else if (e instanceof RepeatedProduct) {
+        return res.status(401).json({ msg: e.message })
       } else {
         console.error(e.message)
         return res.status(400).json({ msg: 'Unexpected Error' })
@@ -77,6 +82,7 @@ export default class ProductController {
 
   static updateProduct = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Forbidden Action: Update product')
       }

@@ -4,11 +4,12 @@ import {
   checkRecord,
   checkUpdateRecord
 } from '../schemas/records.js'
-import { Storage } from '../models/local.js'
+import loadStorage from '../utils/dynamic_import.js'
 
 export default class RecordController {
   static getMostConsumedProducts = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Cannot GET most consumed products')
       }
@@ -26,6 +27,7 @@ export default class RecordController {
 
   static getMostEnteredProducts = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Cannot GET most consumed products')
       }
@@ -44,6 +46,7 @@ export default class RecordController {
 
   static getIncomeRecords = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Unauthorized Action: Get Income records')
       }
@@ -58,6 +61,7 @@ export default class RecordController {
 
   static getOutcomesRecords = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Unauthorized Action: Get Income records')
       }
@@ -72,6 +76,7 @@ export default class RecordController {
 
   static getAllRecords = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Unauthorized Action: Get Income records')
       }
@@ -85,6 +90,7 @@ export default class RecordController {
 
   static createOutcome = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Forbbiden to access records')
       }
@@ -117,6 +123,7 @@ export default class RecordController {
 
   static createIncome = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Forbbiden to access records')
       }
@@ -148,6 +155,7 @@ export default class RecordController {
 
   static updateRecord = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Unauthorized Action: Update Record')
       }
@@ -174,6 +182,7 @@ export default class RecordController {
 
   static deleteRecord = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Unauthorized Action: Delete Record')
       }

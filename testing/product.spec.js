@@ -44,7 +44,7 @@ describe('Product Tests', async () => {
     })
   })
 
-  test.skip('should create a new product', async () => {
+  test('should create a new product', async () => {
     const response = await fetch('http://localhost:3000/api/product', {
       method: 'POST',
       headers: {
@@ -59,9 +59,8 @@ describe('Product Tests', async () => {
     })
 
     const parsedProduct = await response.json()
-    console.log(parsedProduct)
-    expect(response.ok).toBeTruthy()
-    expect(parsedProduct).not.toHaveProperty('msg')
+    expect(response.ok).toBeFalsy()
+    expect(parsedProduct).toHaveProperty('msg')
   })
 
   test.skip('should update a product', async () => {
@@ -95,7 +94,6 @@ describe('Product Tests', async () => {
 
     expect(response.ok).toBeTruthy()
     const parsed = await response.json()
-    console.log(parsed)
     expect(parsed).not.toHaveProperty('msg')
   })
 })

@@ -1,9 +1,10 @@
-import { Storage } from '../models/database.js'
 import { UnauthorizedAction } from '../utils/error_factory.js'
+import loadStorage from '../utils/dynamic_import.js'
 
 export default class Unit {
   static getAllUnits = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Forbidden Action: Get products')
       }

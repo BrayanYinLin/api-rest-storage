@@ -8,36 +8,58 @@ describe('Sign in process', () => {
     refresh_token: null
   }
 
-  test('should return user info', async () => {
-    try {
-      const response = await fetch('http://localhost:3000/api/user/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8'
-        },
-        body: JSON.stringify({
-          email: CREDENTIALS.EMAIL,
-          password: CREDENTIALS.PASSWORD
-        })
+  test.skip('should create user info', async () => {
+    const response = await fetch('http://localhost:3000/api/user/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      },
+      body: JSON.stringify({
+        name: 'User Test',
+        email: CREDENTIALS.EMAIL,
+        password: CREDENTIALS.PASSWORD
       })
+    })
 
-      tokens.access_token = parseCookie({
-        cookiesSet: response.headers.getSetCookie(),
-        tokenName: 'access_token'
-      })
+    tokens.access_token = parseCookie({
+      cookiesSet: response.headers.getSetCookie(),
+      tokenName: 'access_token'
+    })
 
-      tokens.refresh_token = parseCookie({
-        cookiesSet: response.headers.getSetCookie(),
-        tokenName: 'refresh_token'
-      })
+    tokens.refresh_token = parseCookie({
+      cookiesSet: response.headers.getSetCookie(),
+      tokenName: 'refresh_token'
+    })
 
-      expect(response.ok).toBeTruthy()
-    } catch (e) {
-      console.error(e.message)
-    }
+    expect(response.ok).toBeTruthy()
   })
 
-  test.skip('should return a successfull logout message', async () => {
+  test('should return user info', async () => {
+    const response = await fetch('http://localhost:3000/api/user/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      },
+      body: JSON.stringify({
+        email: CREDENTIALS.EMAIL,
+        password: CREDENTIALS.PASSWORD
+      })
+    })
+
+    tokens.access_token = parseCookie({
+      cookiesSet: response.headers.getSetCookie(),
+      tokenName: 'access_token'
+    })
+
+    tokens.refresh_token = parseCookie({
+      cookiesSet: response.headers.getSetCookie(),
+      tokenName: 'refresh_token'
+    })
+
+    expect(response.ok).toBeTruthy()
+  })
+
+  test('should return a successfull logout message', async () => {
     const logout = await fetch('http://localhost:3000/api/user/logout', {
       method: 'POST',
       headers: {

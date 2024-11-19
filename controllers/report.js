@@ -1,11 +1,12 @@
-import { Storage } from '../models/local.js'
 import createReportBase64 from '../utils/create_report.js'
 import { UnauthorizedAction } from '../utils/error_factory.js'
 import getMonth from '../utils/get_month.js'
+import loadStorage from '../utils/dynamic_import.js'
 
 export default class Report {
   static getExpensesReport = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Forbbiden for creating reports')
       }
@@ -35,6 +36,7 @@ export default class Report {
 
   static getIncomesReport = async (req, res) => {
     try {
+      const { Storage } = await loadStorage()
       if (!req.session.user) {
         throw new UnauthorizedAction('Forbbiden for creating reports')
       }
