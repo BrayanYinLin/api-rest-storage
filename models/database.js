@@ -358,15 +358,20 @@ export class Storage {
    *   console.error(error.message);
    * }
    */
-  static updateProduct = async (product) => {
+  static updateProduct = async ({
+    product_id,
+    product_name,
+    product_stock,
+    volume_id
+  }) => {
     try {
       const { rowsAffected } = await turso.execute({
-        sql: 'UPDATE product SET product_name = COALESCE(:product_name, product_name), product_stock = COALESCE(:product_stock, product_stock), volume_id = COALESCE(:volume_id, volume_id) WHERE productId = :productId',
+        sql: 'UPDATE product SET product_name = COALESCE(:product_name, product_name), product_stock = COALESCE(:product_stock, product_stock), volume_id = COALESCE(:volume_id, volume_id) WHERE product_id = :product_id',
         args: {
-          product_name: product.product_name,
-          product_stock: product.product_stock,
-          volume_id: product.volume_id,
-          product_id: product.product_id
+          product_name: product_name,
+          product_stock: product_stock,
+          volume_id: volume_id,
+          product_id: product_id
         }
       })
 
@@ -374,12 +379,12 @@ export class Storage {
         throw new Error('Product cannot be updated')
       }
 
-      const updatedProduct = await turso.execute(
+      const { rows } = await turso.execute(
         'SELECT * FROM view_product WHERE productId = ?',
-        product.product_id
+        product_id
       )
 
-      return updatedProduct
+      return rows
     } catch (error) {
       throw new Error(error.message)
     }
@@ -390,7 +395,7 @@ export class Storage {
       sql: 'SELECT * FROM show_records',
       args: []
     })
-    return records
+    return records.rows
   }
 
   /**
@@ -401,7 +406,7 @@ export class Storage {
       sql: 'SELECT * FROM show_incomes',
       args: []
     })
-    return records
+    return records.rows
   }
 
   /**
@@ -412,7 +417,7 @@ export class Storage {
       sql: 'SELECT * FROM show_expenses',
       args: []
     })
-    return records
+    return records.rows
   }
 
   static createOutcomeRecord = async ({

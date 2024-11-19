@@ -49,12 +49,12 @@ export default class ProductController {
     try {
       if (!req.session.user)
         throw new UnauthorizedAction('Forbidden Action: Create new product')
-      const { name, stock, volume } = req.body
-      const id = await Storage.getVolume({ volumeId: id })
+      const { name, stock, unitId } = req.body
+      const id = await Storage.getUnitById({ volumeId: unitId })
       const { data, error } = checkProduct({
         product_name: name,
         product_stock: stock,
-        volume_id: volume
+        volume_id: id
       })
       if (error) return res.status(422).json(error)
 
@@ -64,11 +64,7 @@ export default class ProductController {
         volume: id
       })
 
-      res.json({
-        name: newProduct.product_name,
-        stock: newProduct.prduct_stock,
-        volume: volume
-      })
+      res.json(newProduct)
     } catch (e) {
       if (e instanceof UnauthorizedAction) {
         return res.status(401).json({ msg: e.message })
@@ -87,10 +83,10 @@ export default class ProductController {
       const { data: productId, error: idError } = checkProductId(
         Number(req.params.id)
       )
-      const { productName, stock, unitId } = req.body
+      const { name, stock, unitId } = req.body
       const { data: productFields, error: fieldsError } = checkUpdateProduct({
-        product_name: productName,
-        prduct_stock: stock,
+        product_name: name,
+        product_stock: stock,
         volume_id: unitId
       })
 
@@ -99,7 +95,9 @@ export default class ProductController {
 
       const updatedProduct = await Storage.updateProduct({
         product_id: productId,
-        ...productFields
+        product_name: productFields.product_name,
+        product_stock: productFields.product_stock,
+        volume_id: productFields.volume_id
       })
       return res.json(updatedProduct)
     } catch (e) {

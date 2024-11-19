@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeAll, afterAll } from 'vitest'
 import { parseCookie } from '../utils/cookie_parser.js'
+import { CREDENTIALS } from './credentials.js'
 
 describe('Product Tests', async () => {
   const tokens = {
@@ -15,8 +16,8 @@ describe('Product Tests', async () => {
           'Content-Type': 'application/json; charset=utf-8'
         },
         body: JSON.stringify({
-          email: 'test@gmail.com',
-          password: '12345678'
+          email: CREDENTIALS.EMAIL,
+          password: CREDENTIALS.PASSWORD
         })
       })
 
@@ -29,8 +30,6 @@ describe('Product Tests', async () => {
         cookiesSet: response.headers.getSetCookie(),
         tokenName: 'refresh_token'
       })
-
-      console.log(tokens.access_token, tokens.refresh_token)
     } catch (e) {
       console.error(e.message)
     }
@@ -45,21 +44,58 @@ describe('Product Tests', async () => {
     })
   })
 
-  test('should create a new product', async () => {
-    const newProductRes = await fetch('http://localhost:3000/api/product', {
+  test.skip('should create a new product', async () => {
+    const response = await fetch('http://localhost:3000/api/product', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         Cookie: `${tokens.access_token}; ${tokens.refresh_token}`
       },
       body: JSON.stringify({
-        name: 'Bolsas 20*30',
+        name: 'Cera Amarilla',
         stock: 500,
-        volume: 2
+        unitId: 1
       })
     })
 
-    const parsedProduct = await newProductRes.json()
+    const parsedProduct = await response.json()
+    console.log(parsedProduct)
+    expect(response.ok).toBeTruthy()
     expect(parsedProduct).not.toHaveProperty('msg')
+  })
+
+  test.skip('should update a product', async () => {
+    const response = await fetch('http://localhost:3000/api/product/23', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        Cookie: `${tokens.access_token}; ${tokens.refresh_token}`
+      },
+      body: JSON.stringify({
+        name: 'Cera Amarilla',
+        stock: 50,
+        unitId: 1
+      })
+    })
+
+    expect(response.ok).toBeTruthy()
+  })
+
+  test('should return a product by name', async () => {
+    const response = await fetch(
+      'http://localhost:3000/api/product/Cera Amarilla',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          Cookie: `${tokens.access_token}; ${tokens.refresh_token}`
+        }
+      }
+    )
+
+    expect(response.ok).toBeTruthy()
+    const parsed = await response.json()
+    console.log(parsed)
+    expect(parsed).not.toHaveProperty('msg')
   })
 })

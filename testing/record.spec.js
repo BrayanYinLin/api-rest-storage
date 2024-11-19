@@ -18,7 +18,7 @@ describe('Record Operations', async () => {
         },
         body: JSON.stringify({
           email: 'test@gmail.com',
-          password: '12345678'
+          password: 'Password12345678'
         })
       })
       const user = await response.json()
@@ -61,7 +61,7 @@ describe('Record Operations', async () => {
     expect(parsedNewRecord).not.toHaveProperty('msg')
   })
 
-  test.skip('should add new record', async () => {
+  test.skip('should create an outcome record', async () => {
     const record = {
       productId: 4,
       userId: userId,
@@ -83,9 +83,9 @@ describe('Record Operations', async () => {
     expect(newRecord).not.toHaveProperty('msg')
   })
 
-  test('should return all records', async () => {
+  test('should return all outcome records', async () => {
     const responseRecords = await fetch(
-      'http://localhost:3000/api/record/all',
+      'http://localhost:3000/api/record/outcome',
       {
         method: 'GET',
         headers: {
@@ -93,6 +93,9 @@ describe('Record Operations', async () => {
         }
       }
     )
+    const parsed = await responseRecords.json()
+
+    expect(parsed).not.toHaveProperty('msg')
     expect(responseRecords.ok).toBeTruthy()
   })
 
