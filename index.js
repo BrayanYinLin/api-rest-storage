@@ -22,7 +22,11 @@ app.use(
   cors({
     origin: function (origin, callback) {
       console.log('Origin:', origin)
-      const allowedOrigins = ['http://localhost:5173', process.env.PRODWEB]
+      const allowedOrigins = [
+        'http://localhost:5173',
+        process.env.PRODWEB,
+        'null'
+      ]
 
       if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
         callback(null, true)
