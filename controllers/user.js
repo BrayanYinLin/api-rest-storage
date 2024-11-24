@@ -36,13 +36,13 @@ export default class UserController {
       res
         .cookie('access_token', token, {
           httpOnly: true,
-          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'strict',
+          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'None',
           secure: !UserController.IS_DEVELOPMENT || process.env.PRODWEB !== '',
           maxAge: 1000 * 60 * 60 * 8
         })
         .cookie('refresh_token', refreshToken, {
           httpOnly: true,
-          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'strict',
+          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'None',
           secure: !UserController.IS_DEVELOPMENT || process.env.PRODWEB !== '',
           maxAge: 1000 * 60 * 60 * 24 * 20
         })
@@ -80,13 +80,13 @@ export default class UserController {
       res
         .cookie('access_token', token, {
           httpOnly: true,
-          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'strict',
+          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'None',
           secure: !UserController.IS_DEVELOPMENT || process.env.PRODWEB !== '',
           maxAge: 1000 * 60 * 60 * 8
         })
         .cookie('refresh_token', refreshToken, {
           httpOnly: true,
-          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'strict',
+          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'None',
           secure: !UserController.IS_DEVELOPMENT || process.env.PRODWEB !== '',
           maxAge: 1000 * 60 * 60 * 24 * 20
         })
@@ -117,7 +117,7 @@ export default class UserController {
       res
         .cookie('access_token', newAccessToken, {
           httpOnly: true,
-          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'strict',
+          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'None',
           secure: !UserController.IS_DEVELOPMENT || process.env.PRODWEB !== '',
           maxAge: 1000 * 60 * 60 * 8
         })
