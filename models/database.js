@@ -99,6 +99,7 @@ export class Storage {
     if (!isOk) throw new PasswordWrong('Password wrong')
 
     return {
+      id: rows[0].user_id,
       email: rows[0].user_email,
       name: rows[0].user_name
     }
