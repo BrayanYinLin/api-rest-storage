@@ -5,6 +5,7 @@
   "private": true,
   "description": "api for manage school storage",
   "main": "index.js",
+  "packageManager": "npm@10.9.0",
   "scripts": {
     "start": "node ./index.js",
     "dev": "node --watch ./index.js",
