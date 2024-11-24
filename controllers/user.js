@@ -4,6 +4,8 @@ import { checkSignUpUser, checkSignInUser } from '../schemas/users.js'
 import 'dotenv/config'
 
 export default class UserController {
+  static IS_DEVELOPMENT = process.env.ENV === 'DEVELOPMENT'
+
   static register = async (req, res) => {
     try {
       const { Storage } = await loadStorage()
@@ -33,15 +35,15 @@ export default class UserController {
 
       res
         .cookie('access_token', token, {
-          httpOnly: process.env.ENV === 'DEVELOPMENT',
-          sameSite: 'strict',
-          secure: false,
+          httpOnly: true,
+          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'strict',
+          secure: !UserController.IS_DEVELOPMENT,
           maxAge: 1000 * 60 * 60 * 8
         })
         .cookie('refresh_token', refreshToken, {
-          httpOnly: process.env.ENV === 'DEVELOPMENT',
-          sameSite: 'strict',
-          secure: false,
+          httpOnly: true,
+          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'strict',
+          secure: !UserController.IS_DEVELOPMENT,
           maxAge: 1000 * 60 * 60 * 24 * 20
         })
         .json(userCreated)
@@ -65,7 +67,6 @@ export default class UserController {
 
       const token = jsonwebtoken.sign(userLogged, process.env.SECRET, {
         expiresIn: '8h'
-        // expiresIn: 10
       })
 
       const refreshToken = jsonwebtoken.sign(
@@ -78,16 +79,15 @@ export default class UserController {
 
       res
         .cookie('access_token', token, {
-          httpOnly: process.env.ENV === 'DEVELOPMENT',
-          sameSite: process.env.ENV === 'DEVELOPMENT' ? 'lax' : 'strict',
-          secure: false, //process.env.ENV === 'DEVELOPMENT'
+          httpOnly: true,
+          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'strict',
+          secure: !UserController.IS_DEVELOPMENT,
           maxAge: 1000 * 60 * 60 * 8
-          // maxAge: 1000 * 10
         })
         .cookie('refresh_token', refreshToken, {
-          httpOnly: process.env.ENV === 'DEVELOPMENT',
-          sameSite: process.env.ENV === 'DEVELOPMENT' ? 'lax' : 'strict',
-          secure: false, //process.env.ENV === 'DEVELOPMENT'
+          httpOnly: true,
+          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'strict',
+          secure: !UserController.IS_DEVELOPMENT,
           maxAge: 1000 * 60 * 60 * 24 * 20
         })
         .json(userLogged)
@@ -116,18 +116,16 @@ export default class UserController {
 
       res
         .cookie('access_token', newAccessToken, {
-          httpOnly: process.env.ENV === 'DEVELOPMENT',
-          sameSite: process.env.ENV === 'DEVELOPMENT' ? 'lax' : 'strict',
-          secure: false, //process.env.ENV === 'DEVELOPMENT'
+          httpOnly: true,
+          sameSite: UserController.IS_DEVELOPMENT ? 'lax' : 'strict',
+          secure: !UserController.IS_DEVELOPMENT,
           maxAge: 1000 * 60 * 60 * 8
         })
         .json(userRefreshed)
     } catch (e) {
       console.error(e)
       res.status(403).json({
-        msg: 'No se que ha pasao',
-        otra: e.name,
-        tokenMRD: req.cookies.refresh_token
+        msg: e.message
       })
     }
   }
