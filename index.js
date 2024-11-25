@@ -12,16 +12,20 @@ import reportRoute from './routes/report.js'
 import unitsRoute from './routes/units.js'
 //  Dotenv
 import 'dotenv/config'
+//  Debug
+import morgan from 'morgan'
 
 const { TokenExpiredError } = jsonwebtoken
 const port = process.env.PORT ?? 3000
 const app = express()
 
+morgan.token('origin', (req) => req.headers['origin'] || 'sin-origin')
+
+app.use(morgan(':method :url :status :response-time ms - origin: :origin'))
 app.use(express.json())
 app.use(
   cors({
     origin: function (origin, callback) {
-      console.log('Origin:', origin)
       const allowedOrigins = [
         'http://localhost:5173',
         process.env.PRODWEB,
@@ -35,7 +39,7 @@ app.use(
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
   })
 )
