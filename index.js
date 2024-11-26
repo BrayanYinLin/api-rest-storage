@@ -26,11 +26,8 @@ app.use(express.json())
 app.use(
   cors({
     origin: function (origin, callback) {
-      const allowedOrigins = [
-        'http://localhost:5173',
-        process.env.PRODWEB,
-        'null'
-      ]
+      const productionWeb = process.env.PRODWEB ?? 'null'
+      const allowedOrigins = ['https://localhost:5173', productionWeb]
 
       if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
         callback(null, true)
