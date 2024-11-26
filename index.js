@@ -14,7 +14,13 @@ import unitsRoute from './routes/units.js'
 import 'dotenv/config'
 //  Debug
 import morgan from 'morgan'
+import https from 'https'
+import * as fs from 'node:fs'
 
+const options = {
+  key: fs.readFileSync('./localhost-key.pem'),
+  cert: fs.readFileSync('./localhost.pem')
+}
 const { TokenExpiredError } = jsonwebtoken
 const port = process.env.PORT ?? 3000
 const app = express()
@@ -26,11 +32,8 @@ app.use(express.json())
 app.use(
   cors({
     origin: function (origin, callback) {
-      const allowedOrigins = [
-        'http://localhost:5173',
-        process.env.PRODWEB,
-        'null'
-      ]
+      const productionWebsite = process.env.PRODWEB ?? 'null'
+      const allowedOrigins = ['https://localhost:5173', productionWebsite]
 
       if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
         callback(null, true)
@@ -100,6 +103,8 @@ app.use('/api/report', reportRoute)
 app.use('/api/unit', unitsRoute)
 app.disable('x-powered-by')
 
-app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`)
+const server = https.createServer(options, app)
+
+server.listen(port, () => {
+  console.log(`Server listening at https://localhost:${port}`)
 })
