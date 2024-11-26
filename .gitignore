@@ -1,3 +1,5 @@
 node_modules/
 .env
 models/local.js
+localhost-key.pem
+localhost.pem
