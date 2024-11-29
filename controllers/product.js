@@ -61,13 +61,6 @@ export default class ProductController {
       })
       if (error) return res.status(422).json(error)
 
-      process.stdout.write(
-        `Producto: ${data.product_name}\nStock: ${data.product_stock}\nUnit: ${data.volume_id}`
-      )
-
-      process.stdout.write(
-        `Producto: ${typeof data.product_name}\nStock: ${data.product_stock}\nUnit: ${data.volume_id}`
-      )
       const newProduct = await Storage.createProduct({
         name: data.product_name,
         stock: data.product_stock,
