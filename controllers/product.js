@@ -53,7 +53,7 @@ export default class ProductController {
       if (!req.session.user)
         throw new UnauthorizedAction('Forbidden Action: Create new product')
       const { name, stock, unitId } = req.body
-      const id = await Storage.getUnitById({ volumeId: unitId })
+      const id = await Storage.getUnitById({ id: unitId })
       const { data, error } = checkProduct({
         product_name: name,
         product_stock: stock,
@@ -74,7 +74,7 @@ export default class ProductController {
       } else if (e instanceof RepeatedProduct) {
         return res.status(401).json({ msg: e.message })
       } else {
-        console.error(e.message)
+        console.error(e.message, e.stack)
         return res.status(400).json({ msg: 'Unexpected Error' })
       }
     }

@@ -45,23 +45,23 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization']
   })
 )
-// app.options(
-//   '*',
-//   cors({
-//     origin: function (origin, callback) {
-//       const productionWebsite = process.env.PRODWEB ?? 'null'
-//       const allowedOrigins = ['https://localhost:5173', productionWebsite]
+app.options(
+  '*',
+  cors({
+    origin: function (origin, callback) {
+      const productionWebsite = process.env.PRODWEB ?? 'null'
+      const allowedOrigins = ['https://localhost:5173', productionWebsite]
 
-//       if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-//         callback(null, true)
-//       } else {
-//         callback(new Error(`Not allowed by CORS ${origin}`))
-//       }
-//     },
-//     credentials: true,
-//     allowedHeaders: ['Content-Type', 'Authorization']
-//   })
-// )
+      if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+        callback(null, true)
+      } else {
+        callback(new Error(`Not allowed by CORS ${origin}`))
+      }
+    },
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
+  })
+)
 app.use(cookieParser())
 app.use((req, res, next) => {
   req.session = {
