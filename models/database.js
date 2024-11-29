@@ -9,7 +9,6 @@ import {
   UnexpectedCreateRecordError,
   UserNotFound
 } from '../utils/error_factory.js'
-import parseTurso from '../utils/parse_turso.js'
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL,
@@ -260,11 +259,11 @@ export class Storage {
    * // ]
    */
   static getAllProducts = async () => {
-    const { rows, columns } = await turso.execute({
+    const { rows } = await turso.execute({
       sql: 'SELECT * FROM view_product',
       args: []
     })
-    return parseTurso({ rows, columns })
+    return rows
   }
 
   /**
