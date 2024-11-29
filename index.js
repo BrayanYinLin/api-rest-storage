@@ -32,6 +32,11 @@ app.use(
     ':method :url :status :response-time ms - origin: :origin :res[content-length]'
   )
 )
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store')
+  next()
+})
+
 app.use(express.json())
 app.use(
   cors({
