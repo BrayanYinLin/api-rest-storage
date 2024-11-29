@@ -27,7 +27,11 @@ const app = express()
 
 morgan.token('origin', (req) => req.headers['origin'] || 'sin-origin')
 
-app.use(morgan(':method :url :status :response-time ms - origin: :origin'))
+app.use(
+  morgan(
+    ':method :url :status :response-time ms - origin: :origin :res[content-length]'
+  )
+)
 app.use(express.json())
 app.use(
   cors({
