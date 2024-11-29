@@ -9,6 +9,7 @@ import {
   UnexpectedCreateRecordError,
   UserNotFound
 } from '../utils/error_factory.js'
+import parseTurso from '../utils/parse_turso.js'
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL,
@@ -259,11 +260,11 @@ export class Storage {
    * // ]
    */
   static getAllProducts = async () => {
-    const products = await turso.execute({
+    const { rows, columns } = await turso.execute({
       sql: 'SELECT * FROM view_product',
       args: []
     })
-    return products
+    return parseTurso({ rows, columns })
   }
 
   /**
@@ -403,22 +404,22 @@ export class Storage {
    * Returns income records
    */
   static getIncomeRecords = async () => {
-    const records = await turso.execute({
+    const { rows } = await turso.execute({
       sql: 'SELECT * FROM show_incomes',
       args: []
     })
-    return records.rows
+    return rows
   }
 
   /**
    * Returns expenses record
    */
   static getExpensesRecords = async () => {
-    const records = await turso.execute({
+    const { rows } = await turso.execute({
       sql: 'SELECT * FROM show_expenses',
       args: []
     })
-    return records.rows
+    return rows
   }
 
   static createOutcomeRecord = async ({
@@ -433,12 +434,12 @@ export class Storage {
         args: [productId, userId, 2, recordQuantity, recordDate]
       })
 
-      const newRecord = await turso.execute({
+      const { rows } = await turso.execute({
         sql: 'SELECT record_id AS recordId, p.product_id AS productId, p.product_name AS productName, v.volume_name AS unitName, user_id AS userId, record_type_id AS recordTypeId, record_quantity AS recordQuantity, record_date AS recordDate FROM record r INNER JOIN product p ON p.product_id = r.product_id INNER JOIN volume v ON p.volume_id = v.volume_id ORDER BY record_strict_date DESC LIMIT 1;',
         args: []
       })
 
-      return newRecord
+      return rows[0]
     } catch (e) {
       throw new UnexpectedCreateRecordError(e.message)
     }
