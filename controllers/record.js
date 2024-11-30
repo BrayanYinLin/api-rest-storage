@@ -192,11 +192,13 @@ export default class RecordController {
         id: checkRecord.data
       })
 
+      console.info('Breakpoint after delete operation')
       return res.json(deletedRecord)
     } catch (e) {
       if (e instanceof UnauthorizedAction) {
         return res.status(401).json({ msg: e.message })
       } else {
+        console.error(e.message)
         return res.status(400).json({ msg: e.message })
       }
     }

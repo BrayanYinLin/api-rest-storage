@@ -24,7 +24,7 @@ morgan.token('origin', (req) => req.headers['origin'] || 'sin-origin')
 
 app.use(
   morgan(
-    ':method :url :status :response-time ms - origin: :origin :res[content-length] - body: :body'
+    ':method - :url - :status - :response-time ms - origin: :origin - body: :body'
   )
 )
 app.use((req, res, next) => {

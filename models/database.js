@@ -473,7 +473,7 @@ export class Storage {
   static updateRecord = async (record) => {
     await turso.execute({
       sql: 'UPDATE record SET user_id = COALESCE(:user_id, user_id), product_id = COALESCE(:product_id, product_id), record_quantity = COALESCE(:record_quantity, record_quantity), record_date = COALESCE(:record_date, record_date) WHERE record_id = :record_id',
-      arg: {
+      args: {
         record_id: record.recordId,
         user_id: record.userId,
         product_id: record.productId,
@@ -487,7 +487,7 @@ export class Storage {
       args: [record.recordId]
     })
 
-    return rows
+    return rows[0]
   }
 
   /**
@@ -499,15 +499,23 @@ export class Storage {
       args: [id]
     })
 
-    if (!rows) {
+    const [selected] = rows
+
+    console.error('El id es: ' + id)
+    if (rows.length === 0) {
       throw new RecordNotFound('Record not found')
     }
 
+    console.info('Breakpoint before delete')
     await turso.execute({
-      sql: 'DELETE FROM record WHERE record_id = ?',
-      arg: [id]
+      sql: 'DELETE FROM record WHERE record_id = :record',
+      args: {
+        record: selected.record_id
+      }
     })
-    return rows
+
+    console.info('Breakpoint after delete')
+    return rows[0]
   }
 
   /**
