@@ -36,7 +36,10 @@ app.use(express.json())
 app.use(
   cors({
     origin: function (origin, callback) {
-      const productionWeb = process.env.PRODWEB ?? 'null'
+      const productionWeb =
+        process.env.PRODWEB === ''
+          ? process.env.PRODWEB
+          : 'https://storage-app-ten.vercel.app'
       const allowedOrigins = [
         'https://localhost:4173',
         'https://localhost:5173',
