@@ -499,7 +499,7 @@ export class Storage {
       args: [id]
     })
 
-    if (rows) {
+    if (!rows) {
       throw new RecordNotFound('Record not found')
     }
 

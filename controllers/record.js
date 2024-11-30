@@ -113,6 +113,7 @@ export default class RecordController {
 
       res.json(newRecord)
     } catch (e) {
+      console.error(e.message)
       if (e instanceof UnauthorizedAction) {
         res.status(403).json({ msg: e.message })
       } else {
