@@ -90,7 +90,7 @@ export class Storage {
    */
   static login = async ({ email, password }) => {
     const { rows } = await turso.execute({
-      sql: `SELECT user_email, user_name, user_password FROM user WHERE user_email = ?`,
+      sql: `SELECT user_id, user_email, user_name, user_password FROM user WHERE user_email = ?`,
       args: [email]
     })
     if (rows.length === 0) throw new UserNotFound('User does not exists')
