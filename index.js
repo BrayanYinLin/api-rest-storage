@@ -43,7 +43,9 @@ app.use(
       const allowedOrigins = [
         'https://localhost:4173',
         'https://localhost:5173',
-        productionWeb
+        productionWeb,
+        'https://storage-njpi1oewm-brayans-projects-54ea6658.vercel.app',
+        'https://storage-njpi1oewm-brayans-projects-54ea6658.vercel.app/'
       ]
 
       if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
