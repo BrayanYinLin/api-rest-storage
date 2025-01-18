@@ -36,14 +36,12 @@ app.use(express.json())
 app.use(
   cors({
     origin: function (origin, callback) {
-      const productionWeb =
-        process.env.PRODWEB === ''
-          ? process.env.PRODWEB
-          : 'https://storage-app-ten.vercel.app'
       const allowedOrigins = [
         'https://localhost:4173',
         'https://localhost:5173',
-        productionWeb,
+        'https://storage-app-iota.vercel.app',
+        'https://storage-app-iota.vercel.app/',
+        'https://storage-app-git-main-brayans-projects-54ea6658.vercel.app/',
         'https://storage-njpi1oewm-brayans-projects-54ea6658.vercel.app',
         'https://storage-njpi1oewm-brayans-projects-54ea6658.vercel.app/'
       ]
@@ -134,5 +132,6 @@ app.use('/api/unit', unitsRoute)
 app.disable('x-powered-by')
 
 app.listen(port, () => {
+  console.log(`Production web is ${process.env.PRODWEB}`)
   console.log(`Server listening at http://localhost:${port}`)
 })
