@@ -380,13 +380,14 @@ export class Storage {
         throw new Error('Product cannot be updated')
       }
 
-      const { rows } = await turso.execute(
-        'SELECT * FROM view_product WHERE productId = ?',
-        product_id
-      )
+      const { rows } = await turso.execute({
+        sql: 'SELECT * FROM view_product WHERE productId = ?',
+        args: [product_id]
+      })
 
       return rows
     } catch (error) {
+      console.error(error.stack)
       throw new Error(error.message)
     }
   }
